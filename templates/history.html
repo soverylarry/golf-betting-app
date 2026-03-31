@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament History | Larry vs Andy Golf</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏆 Tournament History</h1>
+            <p class="tournament-name">Larry vs Andy Golf Betting</p>
+        </header>
+
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('history') }}" class="active">History</a>
+            <a href="{{ url_for('side_bets') }}">Side Bets</a>
+            <a href="{{ url_for('admin') }}">Admin</a>
+        </nav>
+
+        <div class="history-header">
+            <div class="win-stats">
+                <div class="stat-card">
+                    <div class="stat-number" style="color: var(--primary-blue);">{{ larry_wins }}</div>
+                    <div class="stat-label">Larry Wins</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: var(--primary-red);">{{ andy_wins }}</div>
+                    <div class="stat-label">Andy Wins</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: var(--gold);">{{ ties }}</div>
+                    <div class="stat-label">Ties</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-list">
+            {% if history %}
+                {% for item in history %}
+                <div class="history-item {% if item.winner == 'Andy' %}andy-win{% elif item.winner == 'Tie' %}tie{% endif %}">
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+                        <div>
+                            <h3 style="margin-bottom: 0.5rem;">{{ item.tournament }}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ item.date }}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.5rem; font-weight: bold;">
+                                {% if item.winner == 'Larry' %}
+                                    🏆 Larry Wins!
+                                {% elif item.winner == 'Andy' %}
+                                    🏆 Andy Wins!
+                                {% else %}
+                                    🤝 Tie!
+                                {% endif %}
+                            </div>
+                            <div style="margin-top: 0.5rem; color: var(--text-muted);">
+                                Larry: {{ item.larry_score }} | Andy: {{ item.andy_score }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="history-item">
+                    <p style="text-align: center; color: var(--text-muted);">
+                        No tournament history yet. Complete your first tournament to see it here!
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

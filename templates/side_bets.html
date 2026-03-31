@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Side Bets | Larry vs Andy Golf</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎲 Side Bets</h1>
+            <p class="tournament-name">Prop Bets & Special Wagers</p>
+        </header>
+
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('side_bets') }}" class="active">Side Bets</a>
+            <a href="{{ url_for('admin') }}">Admin</a>
+        </nav>
+
+        <!-- Add New Side Bet -->
+        <div class="admin-section">
+            <h2>➕ Create New Side Bet</h2>
+            <form id="addBetForm">
+                <div class="form-group">
+                    <label for="betType">Bet Type</label>
+                    <select id="betType" name="type" required>
+                        <option value="">-- Select Type --</option>
+                        <option value="hole_in_one">Hole-in-One (Any Player)</option>
+                        <option value="lowest_round">Lowest Round of Tournament</option>
+                        <option value="eagle_count">Most Eagles</option>
+                        <option value="birdie_count">Most Birdies</option>
+                        <option value="top_10_finish">Player Finishes Top 10</option>
+                        <option value="makes_cut">Player Makes the Cut</option>
+                        <option value="head_to_head">Head-to-Head Player Matchup</option>
+                        <option value="custom">Custom Bet</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" 
+                           id="description" 
+                           name="description" 
+                           placeholder="e.g., Scottie Scheffler makes the cut"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stake">Stake</label>
+                    <input type="text" 
+                           id="stake" 
+                           name="stake" 
+                           placeholder="e.g., $10, Beer, Lunch"
+                           required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="larryPick">Larry's Position</label>
+                        <select id="larryPick" name="larry_pick">
+                            <option value="yes">YES</option>
+                            <option value="no">NO</option>
+                            <option value="over">OVER</option>
+                            <option value="under">UNDER</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="andyPick">Andy's Position</label>
+                        <select id="andyPick" name="andy_pick">
+                            <option value="no">NO</option>
+                            <option value="yes">YES</option>
+                            <option value="under">UNDER</option>
+                            <option value="over">OVER</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">🎲 Add Side Bet</button>
+            </form>
+        </div>
+
+        <!-- Active Side Bets -->
+        <div class="admin-section">
+            <h2>📋 Active Side Bets</h2>
+            {% if side_bets.props %}
+                <div class="history-list">
+                    {% for bet in side_bets.props %}
+                    <div class="history-item">
+                        <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem;">
+                            <div>
+                                <div style="display: inline-block; padding: 0.25rem 0.75rem; background: var(--gold); color: var(--dark-bg); border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem;">
+                                    {{ bet.type|upper|replace('_', ' ') }}
+                                </div>
+                                <h3 style="margin-bottom: 0.5rem;">{{ bet.description }}</h3>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                                    Stake: <strong style="color: var(--gold);">{{ bet.stake }}</strong>
+                                </p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                    <span style="color: var(--primary-blue);">Larry: {{ bet.larry_pick|upper }}</span>
+                                </div>
+                                <div style="font-size: 0.9rem;">
+                                    <span style="color: var(--primary-red);">Andy: {{ bet.andy_pick|upper }}</span>
+                                </div>
+                                <div style="margin-top: 0.75rem;">
+                                    {% if bet.status == 'active' %}
+                                        <span style="color: var(--primary-green);">● Active</span>
+                                    {% elif bet.status == 'won_larry' %}
+                                        <span style="color: var(--primary-blue);">🏆 Larry Won</span>
+                                    {% elif bet.status == 'won_andy' %}
+                                        <span style="color: var(--primary-red);">🏆 Andy Won</span>
+                                    {% else %}
+                                        <span style="color: var(--text-muted);">Push</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                    No active side bets. Create one above to get started!
+                </p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Handle side bet form submission
+        document.getElementById('addBetForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                add_bet: true,
+                type: document.getElementById('betType').value,
+                description: document.getElementById('description').value,
+                stake: document.getElementById('stake').value,
+                larry_pick: document.getElementById('larryPick').value,
+                andy_pick: document.getElementById('andyPick').value
+            };
+
+            try {
+                const response = await fetch('/side_bets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reload page to show new bet
+                    location.reload();
+                } else {
+                    alert('Failed to add side bet. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error adding side bet:', error);
+                alert('Error adding side bet. Please try again.');
+            }
+        });
+
+        // Auto-fill descriptions based on bet type
+        document.getElementById('betType').addEventListener('change', function() {
+            const descriptions = {
+                'hole_in_one': 'Any player gets a hole-in-one',
+                'lowest_round': 'Lowest single round score',
+                'eagle_count': 'Total eagles in tournament',
+                'birdie_count': 'Total birdies in tournament',
+                'top_10_finish': 'Player finishes in top 10',
+                'makes_cut': 'Player makes the cut',
+                'head_to_head': 'Player A beats Player B'
+            };
+            
+            const desc = descriptions[this.value];
+            if (desc) {
+                document.getElementById('description').placeholder = desc;
+            }
+        });
+    </script>
+</body>
+</html>

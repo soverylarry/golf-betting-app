@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Larry vs Andy Golf</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Admin Panel</h1>
+            <p class="tournament-name">Pick Players & Set Stakes</p>
+        </header>
+
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('side_bets') }}">Side Bets</a>
+            <a href="{{ url_for('admin') }}" class="active">Admin</a>
+        </nav>
+
+        <form method="POST" action="{{ url_for('admin') }}">
+            <!-- Stakes Section -->
+            <div class="admin-section">
+                <h2>💰 Set Stakes</h2>
+                <div class="form-group">
+                    <label for="stakes">What are we playing for?</label>
+                    <input type="text" 
+                           id="stakes" 
+                           name="stakes" 
+                           value="{{ stakes }}" 
+                           placeholder="e.g., $20, Dinner, Bragging Rights"
+                           autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Larry's Picks -->
+            <div class="admin-section">
+                <h2>🎯 Larry's Team (Pick {{ 10 }} Players)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Currently selected: <strong id="larryCount">{{ current.larry|length }}</strong> / 10
+                </p>
+                <div class="player-selector">
+                    {% for player in players %}
+                    <label>
+                        <input type="checkbox" 
+                               name="larry_picks" 
+                               value="{{ player.name }}"
+                               class="larry-checkbox"
+                               {% if player.name in current.larry %}checked{% endif %}>
+                        {{ player.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Andy's Picks -->
+            <div class="admin-section">
+                <h2>🎯 Andy's Team (Pick {{ 10 }} Players)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Currently selected: <strong id="andyCount">{{ current.andy|length }}</strong> / 10
+                </p>
+                <div class="player-selector">
+                    {% for player in players %}
+                    <label>
+                        <input type="checkbox" 
+                               name="andy_picks" 
+                               value="{{ player.name }}"
+                               class="andy-checkbox"
+                               {% if player.name in current.andy %}checked{% endif %}>
+                        {{ player.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="admin-section" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                <button type="submit" class="btn-primary">💾 Save Picks & Stakes</button>
+                <a href="{{ url_for('draft') }}" class="btn-secondary">🎲 Use Draft Mode</a>
+                <button type="submit" name="archive_week" class="btn-secondary" 
+                        style="background: var(--gold);"
+                        onclick="return confirm('Archive this tournament and reset for next week?')">
+                    📦 Archive Tournament
+                </button>
+            </div>
+        </form>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Count checkboxes and enforce 10-player limit
+        const larryCheckboxes = document.querySelectorAll('.larry-checkbox');
+        const andyCheckboxes = document.querySelectorAll('.andy-checkbox');
+        const larryCountEl = document.getElementById('larryCount');
+        const andyCountEl = document.getElementById('andyCount');
+
+        function updateCount(checkboxes, countEl, maxPlayers = 10) {
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            countEl.textContent = checkedCount;
+            countEl.style.color = checkedCount > maxPlayers ? 'var(--primary-red)' : 'var(--primary-green)';
+            
+            // Disable unchecked boxes if limit reached
+            if (checkedCount >= maxPlayers) {
+                checkboxes.forEach(cb => {
+                    if (!cb.checked) cb.disabled = true;
+                });
+            } else {
+                checkboxes.forEach(cb => cb.disabled = false);
+            }
+        }
+
+        larryCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => updateCount(larryCheckboxes, larryCountEl));
+        });
+
+        andyCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => updateCount(andyCheckboxes, andyCountEl));
+        });
+
+        // Initial count update
+        updateCount(larryCheckboxes, larryCountEl);
+        updateCount(andyCheckboxes, andyCountEl);
+    </script>
+</body>
+</html>
