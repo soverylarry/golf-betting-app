@@ -323,7 +323,7 @@
 
         function updateUI() {
             // Update pick counts
-            const larryCoun = draftState.picks.filter(p => p.team === 'larry').length;
+            const larryCount = draftState.picks.filter(p => p.team === 'larry').length;
             const andyCount = draftState.picks.filter(p => p.team === 'andy').length;
             elements.larryPickCount.textContent = larryCount;
             elements.andyPickCount.textContent = andyCount;
