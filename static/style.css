@@ -139,47 +139,21 @@ nav a.active {
     border-width: 5px;
 }
 
-/* Main Scoreboard Layout with Side Panels */
+/* Scoreboard - Masters Style */
 .scoreboard {
     display: grid;
-    grid-template-columns: 200px 1fr 200px;
-    gap: 1.5rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
     margin-bottom: 2rem;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
     .scoreboard {
         grid-template-columns: 1fr;
     }
-    
-    /* Hide side panels on mobile */
-    .side-panel {
-        display: none;
-    }
 }
 
-/* Side Panels - Like "THRU 9" and "THRU 17" panels */
-.side-panel {
-    background: var(--masters-white);
-    border: 8px solid var(--masters-green);
-    border-radius: 12px;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    box-shadow: 0 8px 20px var(--shadow);
-    min-height: 300px;
-}
-
-.side-panel h3 {
-    font-size: 1.3rem;
-    color: var(--text-black);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 4px solid var(--masters-green);
-}
-
+/* Side Bets Summary (below scoreboard) */
 .side-bets-summary {
     background: var(--masters-white);
     border: 8px solid var(--masters-green);
@@ -187,6 +161,7 @@ nav a.active {
     padding: 1.5rem;
     text-align: center;
     box-shadow: 0 8px 20px var(--shadow);
+    margin-bottom: 2rem;
 }
 
 .side-bets-summary h3 {
@@ -195,19 +170,6 @@ nav a.active {
     font-weight: 900;
     font-size: 1.2rem;
     text-transform: uppercase;
-}
-
-/* Main Leaderboard - White background with green trim */
-.main-board {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-@media (max-width: 768px) {
-    .main-board {
-        grid-template-columns: 1fr;
-    }
 }
 
 .team-card {
