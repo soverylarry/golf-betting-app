@@ -1,177 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Larry vs Andy Golf | {{ tournament_name }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🏌️ Larry vs Andy Golf</h1>
-            <p class="tournament-name">{{ tournament_name }}</p>
-            <p class="stakes">Stakes: <strong>{{ stakes }}</strong></p>
-            <p class="last-updated" id="lastUpdated">Last Updated: {{ last_updated }}</p>
-        </header>
+🏌️ Larry vs Andy Golf
+{{ tournament_name }}
 
-        <nav>
-            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
-            <a href="{{ url_for('history') }}">History</a>
-            <a href="{{ url_for('side_bets') }}">Side Bets</a>
-            <a href="{{ url_for('admin') }}">Admin</a>
-        </nav>
+Stakes: {{ stakes }}
 
-        <div class="scoreboard">
-            <div class="team-card larry">
-                <h2>🎯 Larry</h2>
-                <div class="total-score {{ 'winning' if larry.total < andy.total else 'losing' if larry.total > andy.total else 'tied' }}">
-                    {{ larry.total }}
-                </div>
-                <p class="score-label">Total Score (Best 4)</p>
-                
-                <div class="players-list">
-                    <h3>Top 4 Counting</h3>
-                    {% for player in larry.top_4 %}
-                    <div class="player-row counting">
-                        <span class="player-name">{{ player.name }}</span>
-                        <span class="player-score">{{ player.score }}</span>
-                        <span class="player-status">{{ player.thru }}</span>
-                    </div>
-                    {% endfor %}
-                    
-                    {% if larry.all_players|length > 4 %}
-                    <details class="bench-players">
-                        <summary>Show All {{ larry.all_players|length }} Players</summary>
-                        {% for player in larry.all_players[4:] %}
-                        <div class="player-row bench">
-                            <span class="player-name">{{ player.name }}</span>
-                            <span class="player-score">{{ player.score }}</span>
-                            <span class="player-status">{{ player.thru }}</span>
-                        </div>
-                        {% endfor %}
-                    </details>
-                    {% endif %}
-                </div>
-            </div>
+Last Updated: {{ last_updated }}
 
-            <div class="team-card andy">
-                <h2>🎯 Andy</h2>
-                <div class="total-score {{ 'winning' if andy.total < larry.total else 'losing' if andy.total > larry.total else 'tied' }}">
-                    {{ andy.total }}
-                </div>
-                <p class="score-label">Total Score (Best 4)</p>
-                
-                <div class="players-list">
-                    <h3>Top 4 Counting</h3>
-                    {% for player in andy.top_4 %}
-                    <div class="player-row counting">
-                        <span class="player-name">{{ player.name }}</span>
-                        <span class="player-score">{{ player.score }}</span>
-                        <span class="player-status">{{ player.thru }}</span>
-                    </div>
-                    {% endfor %}
-                    
-                    {% if andy.all_players|length > 4 %}
-                    <details class="bench-players">
-                        <summary>Show All {{ andy.all_players|length }} Players</summary>
-                        {% for player in andy.all_players[4:] %}
-                        <div class="player-row bench">
-                            <span class="player-name">{{ player.name }}</span>
-                            <span class="player-score">{{ player.score }}</span>
-                            <span class="player-status">{{ player.thru }}</span>
-                        </div>
-                        {% endfor %}
-                    </details>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+Dashboard History Side Bets Admin
+Side Bets
+{% if side_bets and side_bets.props %}
+{{ side_bets.props|length }}
 
-        {% if side_bets and side_bets.props %}
-        <div class="side-bets-summary">
-            <h3>🎲 Active Side Bets: {{ side_bets.props|length }}</h3>
-            <a href="{{ url_for('side_bets') }}" class="btn-secondary">View All Side Bets →</a>
-        </div>
-        {% endif %}
+Active
 
-        <div class="controls">
-            <button id="refreshBtn" class="btn-primary">🔄 Refresh Scores</button>
-            <label class="auto-refresh-toggle">
-                <input type="checkbox" id="autoRefresh"> 
-                Auto-refresh (30s)
-            </label>
-        </div>
-    </div>
+{% else %}
+No active bets
 
-    <script>
-        let autoRefreshInterval = null;
-        const refreshBtn = document.getElementById('refreshBtn');
-        const autoRefreshCheckbox = document.getElementById('autoRefresh');
-        const lastUpdatedEl = document.getElementById('lastUpdated');
+{% endif %}
+🎯 Larry
+{{ larry.total }}
+Total Score (Best 4)
 
-        // Manual refresh
-        refreshBtn.addEventListener('click', refreshScores);
+Top 4 Counting
+{% for player in larry.top_4 %}
+{{ player.name }} {{ player.score }} {{ player.thru }}
+{% endfor %} {% if larry.all_players|length > 4 %}
+Show All {{ larry.all_players|length }} Players
+{% endif %}
+🎯 Andy
+{{ andy.total }}
+Total Score (Best 4)
 
-        // Auto-refresh toggle
-        autoRefreshCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                startAutoRefresh();
-            } else {
-                stopAutoRefresh();
-            }
-        });
+Top 4 Counting
+{% for player in andy.top_4 %}
+{{ player.name }} {{ player.score }} {{ player.thru }}
+{% endfor %} {% if andy.all_players|length > 4 %}
+Show All {{ andy.all_players|length }} Players
+{% endif %}
+Scores
+Larry: {{ larry.total }}
 
-        function refreshScores() {
-            refreshBtn.disabled = true;
-            refreshBtn.textContent = '⏳ Updating...';
-            
-            fetch('/api/refresh')
-                .then(response => response.json())
-                .then(data => {
-                    // Update scores without full page reload
-                    updateScoreboard(data);
-                    lastUpdatedEl.textContent = 'Last Updated: ' + data.last_updated;
-                    refreshBtn.disabled = false;
-                    refreshBtn.textContent = '🔄 Refresh Scores';
-                })
-                .catch(error => {
-                    console.error('Refresh failed:', error);
-                    refreshBtn.disabled = false;
-                    refreshBtn.textContent = '🔄 Refresh Scores';
-                });
-        }
+Andy: {{ andy.total }}
 
-        function updateScoreboard(data) {
-            // Simple approach: reload the page (for now)
-            // TODO: Implement smooth in-place updates
-            location.reload();
-        }
-
-        function startAutoRefresh() {
-            autoRefreshInterval = setInterval(refreshScores, 30000); // 30 seconds
-            console.log('Auto-refresh enabled');
-        }
-
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-                console.log('Auto-refresh disabled');
-            }
-        }
-
-        // Load auto-refresh preference from localStorage
-        const savedAutoRefresh = localStorage.getItem('autoRefresh');
-        if (savedAutoRefresh === 'true') {
-            autoRefreshCheckbox.checked = true;
-            startAutoRefresh();
-        }
-
-        // Save preference on change
-        autoRefreshCheckbox.addEventListener('change', function() {
-            localStorage.setItem('autoRefresh', this.checked);
-        });
-    </script>
-</body>
-</html>
+{% if side_bets and side_bets.props %}
+🎲 Active Side Bets: {{ side_bets.props|length }}
+View All Side Bets →
+{% endif %}
+🔄 Refresh Scores  Auto-refresh (30s)
