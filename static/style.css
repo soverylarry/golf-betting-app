@@ -1,16 +1,15 @@
-/* Golf Betting App - Authentic Augusta Masters Scoreboard Theme */
+/* Golf Betting App - Simple Masters White Theme */
 
 :root {
-    /* Authentic Masters Scoreboard Colors */
-    --masters-white: #ffffff;
-    --masters-green: #006747;
-    --masters-dark-green: #004d35;
-    --masters-trim: #1a5c45;
-    --text-black: #000000;
-    --score-red: #d32f2f;  /* Under par - red numbers */
-    --score-green: #006747; /* At/over par - green numbers */
-    --background-sky: #e8f4f8;
-    --shadow: rgba(0, 0, 0, 0.3);
+    --primary-green: #006747;
+    --secondary-green: #1a5c45;
+    --dark-bg: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --text-light: #f0f0f0;
+    --accent-blue: #4a9eff;
+    --accent-red: #ff5555;
+    --accent-orange: #ffaa33;
+    --border-color: #3d3d3d;
 }
 
 * {
@@ -20,80 +19,59 @@
 }
 
 body {
-    font-family: 'Arial Black', 'Arial Bold', 'Helvetica', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #ffffff;
-    color: var(--text-black);
-    line-height: 1.4;
+    color: #1a1a1a;
+    line-height: 1.6;
     min-height: 100vh;
     padding: 1rem;
 }
 
 .container {
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
-/* Header - Masters Scoreboard Style with Curved Top */
+/* Header */
 header {
     text-align: center;
     margin-bottom: 2rem;
-    padding: 2.5rem 2rem 2rem 2rem;
-    background: var(--masters-white);
-    border: 8px solid var(--masters-green);
-    border-radius: 30px 30px 8px 8px;
-    box-shadow: 0 10px 30px var(--shadow);
-    position: relative;
-    overflow: visible;
-}
-
-header::before {
-    content: '';
-    position: absolute;
-    top: -16px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% + 16px);
-    height: 50px;
-    background: var(--masters-green);
-    border-radius: 30px 30px 0 0;
-    z-index: -1;
+    padding: 2rem 1.5rem;
+    background: #ffffff;
+    border: 6px solid var(--primary-green);
+    border-radius: 20px 20px 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 header h1 {
     font-size: clamp(2rem, 6vw, 3.5rem);
     margin-bottom: 0.5rem;
-    color: var(--text-black);
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-}
-
-.tournament-name {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    color: var(--masters-green);
-    font-weight: 900;
-    margin-bottom: 0.5rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-.stakes {
-    font-size: 1.2rem;
-    color: var(--text-black);
-    margin-top: 0.75rem;
+    color: #000000;
     font-weight: 700;
 }
 
+.tournament-name {
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    color: var(--primary-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stakes {
+    font-size: 1.1rem;
+    color: #333333;
+    margin-top: 0.5rem;
+}
+
 .stakes strong {
-    color: var(--score-red);
-    font-weight: 900;
+    color: var(--accent-red);
+    font-weight: 700;
 }
 
 .last-updated {
-    font-size: 0.95rem;
-    color: #666;
+    font-size: 0.9rem;
+    color: #666666;
     margin-top: 0.75rem;
-    font-weight: 600;
 }
 
 /* Navigation */
@@ -102,242 +80,218 @@ nav {
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-bottom: 2rem;
-    background: var(--masters-white);
-    padding: 1.25rem;
-    border: 6px solid var(--masters-green);
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 8px 20px var(--shadow);
+    background: #ffffff;
+    padding: 1rem;
+    border: 4px solid var(--primary-green);
+    border-radius: 8px;
 }
 
 nav a {
     flex: 1;
-    min-width: 130px;
-    padding: 1rem 1.5rem;
-    background: var(--masters-white);
-    color: var(--masters-green);
+    min-width: 120px;
+    padding: 0.9rem 1.5rem;
+    background: #ffffff;
+    color: var(--primary-green);
     text-decoration: none;
-    border: 4px solid var(--masters-green);
-    border-radius: 8px;
+    border: 3px solid var(--primary-green);
+    border-radius: 6px;
     text-align: center;
     transition: all 0.3s ease;
-    font-weight: 900;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 1rem;
+    letter-spacing: 0.5px;
 }
 
 nav a:hover {
-    background: var(--masters-green);
-    color: var(--masters-white);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px var(--shadow);
+    background: var(--primary-green);
+    color: #ffffff;
+    transform: translateY(-2px);
 }
 
 nav a.active {
-    background: var(--masters-green);
-    color: var(--masters-white);
-    border-width: 5px;
+    background: var(--primary-green);
+    color: #ffffff;
 }
 
-/* Scoreboard - Masters Style */
+/* Scoreboard */
 .scoreboard {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 2rem;
     margin-bottom: 2rem;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 900px) {
     .scoreboard {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 }
 
-/* Side Bets Summary (below scoreboard) */
-.side-bets-summary {
-    background: var(--masters-white);
-    border: 8px solid var(--masters-green);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 8px 20px var(--shadow);
-    margin-bottom: 2rem;
-}
-
-.side-bets-summary h3 {
-    margin-bottom: 1rem;
-    color: var(--masters-green);
-    font-weight: 900;
-    font-size: 1.2rem;
-    text-transform: uppercase;
-}
-
 .team-card {
-    background: var(--masters-white);
-    border: 8px solid var(--masters-green);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px var(--shadow);
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 0;
+    border: 6px solid var(--primary-green);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
-/* Player Name Headers */
 .team-card h2 {
-    font-size: 2rem;
-    padding: 1.25rem;
+    font-size: 1.8rem;
+    padding: 1rem;
     text-align: center;
-    background: var(--masters-green);
-    color: var(--masters-white);
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    border-bottom: 5px solid var(--masters-dark-green);
+    background: var(--primary-green);
+    color: #ffffff;
+    font-weight: 700;
 }
 
-/* Score Display - Scoreboard Style */
 .total-score {
-    font-size: clamp(5rem, 12vw, 7rem);
+    font-size: clamp(4rem, 10vw, 6rem);
     font-weight: 900;
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 1.5rem;
     margin: 0;
-    background: var(--masters-white);
-    font-family: 'Arial Black', sans-serif;
+    color: #000000;
+    background: #ffffff;
 }
 
 .total-score.winning {
-    color: var(--score-red);  /* Under par = RED */
+    color: #d32f2f;
 }
 
 .total-score.losing {
-    color: var(--score-green);  /* Over par = GREEN */
+    color: var(--primary-green);
 }
 
 .total-score.tied {
-    color: var(--text-black);  /* Tied = BLACK */
+    color: #000000;
 }
 
 .score-label {
     text-align: center;
-    color: var(--text-black);
-    font-size: 1rem;
-    font-weight: 900;
+    color: #333333;
+    font-size: 0.95rem;
+    font-weight: 700;
     padding: 0.75rem;
     background: rgba(0, 103, 71, 0.1);
+    border-top: 3px solid var(--primary-green);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    border-top: 3px solid var(--masters-green);
 }
 
-/* Players List - Grid Style */
+/* Players List */
 .players-list {
-    padding: 1.5rem;
-    background: var(--masters-white);
+    padding: 1rem;
+    background: #ffffff;
 }
 
 .players-list h3 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    color: var(--text-black);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary-green);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 900;
-    border-bottom: 4px solid var(--masters-green);
-    padding-bottom: 0.75rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary-green);
+    padding-bottom: 0.5rem;
 }
 
 .player-row {
     display: grid;
     grid-template-columns: 1fr auto auto;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.85rem;
     margin-bottom: 0.5rem;
-    background: var(--masters-white);
-    border: 3px solid var(--masters-green);
-    border-radius: 6px;
+    background: rgba(0, 103, 71, 0.05);
+    border-radius: 4px;
     align-items: center;
-    border-left: 6px solid var(--masters-green);
+    border-left: 4px solid transparent;
 }
 
 .player-row.counting {
-    border-left-color: var(--score-red);
-    border-width: 4px;
-    border-left-width: 8px;
-    background: rgba(211, 47, 47, 0.05);
+    border-left-color: var(--primary-green);
+    background: rgba(0, 103, 71, 0.1);
+    font-weight: 600;
 }
 
 .player-row.bench {
-    opacity: 0.6;
-    border-left-color: #999;
+    opacity: 0.7;
 }
 
 .player-name {
-    font-weight: 900;
-    color: var(--text-black);
+    font-weight: 600;
+    color: #000000;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .player-score {
     font-weight: 900;
-    font-size: 1.8rem;
-    min-width: 60px;
+    font-size: 1.3rem;
+    min-width: 50px;
     text-align: right;
-    font-family: 'Arial Black', sans-serif;
 }
 
 .player-row.counting .player-score {
-    color: var(--score-red);  /* Top 4 scores in RED */
+    color: #d32f2f;
 }
 
 .player-row.bench .player-score {
-    color: var(--score-green);  /* Bench scores in GREEN */
+    color: var(--primary-green);
 }
 
 .player-status {
-    min-width: 40px;
+    min-width: 35px;
     text-align: right;
-    color: var(--text-black);
-    font-size: 1rem;
-    font-weight: 900;
+    color: #666666;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .bench-players {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .bench-players summary {
     cursor: pointer;
-    padding: 1rem;
-    background: var(--masters-green);
-    color: var(--masters-white);
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 900;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: 3px solid var(--masters-dark-green);
+    padding: 0.75rem;
+    background: var(--primary-green);
+    color: #ffffff;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
 }
 
 .bench-players summary:hover {
-    background: var(--masters-dark-green);
+    background: var(--secondary-green);
+}
+
+/* Side Bets Summary */
+.side-bets-summary {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    border: 4px solid var(--primary-green);
+}
+
+.side-bets-summary h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-green);
+    font-weight: 700;
 }
 
 /* Controls */
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
     align-items: center;
     padding: 1.5rem;
-    background: var(--masters-white);
-    border: 6px solid var(--masters-green);
-    border-radius: 12px;
-    box-shadow: 0 8px 20px var(--shadow);
+    background: #ffffff;
+    border: 4px solid var(--primary-green);
+    border-radius: 8px;
 }
 
 @media (min-width: 640px) {
@@ -347,46 +301,45 @@ nav a.active {
     }
 }
 
-/* Buttons - Scoreboard Style */
+/* Buttons */
 .btn-primary, .btn-secondary {
-    padding: 1rem 2.5rem;
-    border: 4px solid var(--masters-green);
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 900;
+    padding: 0.9rem 2.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
     display: inline-block;
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .btn-primary {
-    background: var(--masters-white);
-    color: var(--masters-green);
+    background: var(--primary-green);
+    color: #ffffff;
+    border: 3px solid var(--primary-green);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: var(--masters-green);
-    color: var(--masters-white);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px var(--shadow);
+    background: var(--secondary-green);
+    transform: translateY(-2px);
 }
 
 .btn-primary:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
 .btn-secondary {
-    background: var(--masters-green);
-    color: var(--masters-white);
+    background: #ffffff;
+    color: var(--primary-green);
+    border: 3px solid var(--primary-green);
 }
 
 .btn-secondary:hover {
-    background: var(--masters-dark-green);
-    transform: translateY(-3px);
+    background: var(--primary-green);
+    color: #ffffff;
+    transform: translateY(-2px);
 }
 
 .auto-refresh-toggle {
@@ -395,13 +348,13 @@ nav a.active {
     gap: 0.75rem;
     cursor: pointer;
     user-select: none;
-    color: var(--text-black);
-    font-weight: 900;
+    color: #333333;
+    font-weight: 600;
 }
 
 .auto-refresh-toggle input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
 }
 
@@ -415,145 +368,159 @@ nav a.active {
 }
 
 .stat-card {
-    background: var(--masters-white);
-    padding: 2.5rem;
-    border-radius: 12px;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
     text-align: center;
-    min-width: 200px;
-    border: 8px solid var(--masters-green);
-    box-shadow: 0 8px 20px var(--shadow);
+    min-width: 180px;
+    border: 4px solid var(--primary-green);
 }
 
 .stat-card .stat-number {
-    font-size: 4.5rem;
+    font-size: 3.5rem;
     font-weight: 900;
-    color: var(--score-red);
+    color: var(--primary-green);
 }
 
 .stat-card .stat-label {
-    color: var(--text-black);
-    margin-top: 0.75rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    color: #333333;
+    margin-top: 0.5rem;
+    font-weight: 700;
 }
 
 .history-list {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
 }
 
 .history-item {
-    background: var(--masters-white);
-    padding: 1.75rem;
-    border-radius: 12px;
-    border: 6px solid var(--masters-green);
-    border-left-width: 12px;
-    box-shadow: 0 6px 15px var(--shadow);
-}
-
-.history-item h3 {
-    color: var(--masters-green);
-    font-weight: 900;
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 6px solid var(--primary-green);
+    border: 4px solid var(--primary-green);
 }
 
 /* Admin Page */
 .admin-section {
-    background: var(--masters-white);
-    padding: 2rem;
-    border-radius: 12px;
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
     margin-bottom: 2rem;
-    border: 6px solid var(--masters-green);
-    box-shadow: 0 8px 20px var(--shadow);
+    border: 4px solid var(--primary-green);
 }
 
 .admin-section h2 {
-    margin-bottom: 1.25rem;
-    color: var(--masters-green);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.75rem;
-    font-weight: 900;
-    color: var(--text-black);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: #333333;
 }
 
 .form-group input[type="text"],
 .form-group select {
     width: 100%;
-    padding: 1rem;
-    background: var(--masters-white);
-    border: 4px solid var(--masters-green);
-    border-radius: 8px;
-    color: var(--text-black);
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 0.85rem;
+    background: #ffffff;
+    border: 2px solid var(--primary-green);
+    border-radius: 6px;
+    color: #000000;
+    font-size: 1rem;
 }
 
 .player-selector {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 0.75rem;
     max-height: 500px;
     overflow-y: auto;
-    padding: 1.25rem;
-    background: var(--masters-white);
-    border: 4px solid var(--masters-green);
+    padding: 1rem;
+    background: rgba(0, 103, 71, 0.05);
     border-radius: 8px;
+    border: 2px solid var(--primary-green);
 }
 
 .player-selector label {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.85rem;
-    border: 3px solid var(--masters-green);
+    padding: 0.75rem;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 700;
-    background: var(--masters-white);
+    transition: background 0.2s;
+    font-weight: 600;
 }
 
 .player-selector label:hover {
-    background: rgba(0, 103, 71, 0.1);
-    border-width: 4px;
+    background: rgba(0, 103, 71, 0.15);
+}
+
+.player-selector input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 /* Draft Page */
+.draft-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 968px) {
+    .draft-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.draft-board {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-height: 400px;
+    border: 4px solid var(--primary-green);
+}
+
 .player-card {
-    background: var(--masters-white);
-    border: 3px solid var(--masters-green);
+    background: rgba(0, 103, 71, 0.05);
     padding: 1rem;
     margin-bottom: 0.75rem;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
-    border-left-width: 6px;
-    font-weight: 700;
+    border-left: 4px solid var(--primary-green);
 }
 
 .player-card:hover {
     transform: translateX(5px);
-    background: rgba(0, 103, 71, 0.1);
-    border-left-width: 8px;
+    background: rgba(0, 103, 71, 0.15);
 }
 
 .player-card.selected {
-    opacity: 0.3;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
 /* Responsive */
 @media (max-width: 640px) {
+    body {
+        padding: 0.5rem;
+    }
+    
     header {
-        padding: 2rem 1rem 1.5rem 1rem;
+        padding: 1.5rem 1rem;
     }
 }
