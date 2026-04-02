@@ -6,16 +6,6 @@ Stakes: {{ stakes }}
 Last Updated: {{ last_updated }}
 
 Dashboard History Side Bets Admin
-Side Bets
-{% if side_bets and side_bets.props %}
-{{ side_bets.props|length }}
-
-Active
-
-{% else %}
-No active bets
-
-{% endif %}
 🎯 Larry
 {{ larry.total }}
 Total Score (Best 4)
@@ -36,11 +26,6 @@ Top 4 Counting
 {% endfor %} {% if andy.all_players|length > 4 %}
 Show All {{ andy.all_players|length }} Players
 {% endif %}
-Scores
-Larry: {{ larry.total }}
-
-Andy: {{ andy.total }}
-
 {% if side_bets and side_bets.props %}
 🎲 Active Side Bets: {{ side_bets.props|length }}
 View All Side Bets →
