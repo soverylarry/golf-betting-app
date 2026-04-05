@@ -1,397 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Player Draft | Larry vs Andy Golf</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<style>
-.draft-container {
-display: grid;
-grid-template-columns: 1fr 2fr 1fr;
-gap: 1.5rem;
-margin-bottom: 2rem;
-}
-
-@media (max-width: 968px) {
-.draft-container {
-grid-template-columns: 1fr;
-}
-}
-
-.draft-board {
-background: var(--card-bg);
-border-radius: 12px;
-padding: 1.5rem;
-min-height: 400px;
-}
-
-.available-players {
-grid-column: span 1;
-max-height: 600px;
-overflow-y: auto;
-}
-
-.player-card {
-background: var(--dark-bg);
-padding: 1rem;
-margin-bottom: 0.75rem;
-border-radius: 8px;
-cursor: pointer;
-transition: all 0.2s;
-border: 2px solid transparent;
-}
-
-.player-card:hover {
-transform: translateX(5px);
-border-color: var(--primary-green);
-}
-
-.player-card.selected {
-opacity: 0.3;
-cursor: not-allowed;
-}
-
-.player-card.selected:hover {
-transform: none;
-border-color: transparent;
-}
-
-.draft-order {
-text-align: center;
-padding: 2rem;
-}
-
-.draft-pick-indicator {
-font-size: 3rem;
-margin: 2rem 0;
-}
-
-.turn-indicator {
-font-size: 1.5rem;
-font-weight: bold;
-padding: 1rem;
-border-radius: 8px;
-margin-bottom: 1rem;
-}
-
-.turn-indicator.larry-turn {
-background: var(--primary-blue);
-color: white;
-}
-
-.turn-indicator.andy-turn {
-background: var(--primary-red);
-color: white;
-}
-
-.drafted-list {
-list-style: none;
-padding: 0;
-}
-
-.drafted-item {
-background: var(--dark-bg);
-padding: 0.75rem;
-margin-bottom: 0.5rem;
-border-radius: 6px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-.pick-number {
-background: var(--primary-green);
-color: white;
-width: 30px;
-height: 30px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-font-weight: bold;
-font-size: 0.9rem;
-}
-
-.snake-order-viz {
-display: flex;
-flex-direction: column;
-gap: 0.5rem;
-margin: 1rem 0;
-}
-
-.round-viz {
-display: flex;
-justify-content: space-between;
-padding: 0.5rem;
-background: var(--dark-bg);
-border-radius: 6px;
-font-size: 0.85rem;
-}
-
-.round-viz.current {
-border: 2px solid var(--primary-green);
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Larry vs Andy Golf</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<div class="container">
-<header>
-<h1>🎲 Snake Draft</h1>
-<p class="tournament-name">Player Selection Draft Mode</p>
-</header>
+    <div class="container">
+        <header>
+            <h1>⛳ Larry vs Andy Golf</h1>
+            <p class="tournament-name">{{ tournament_name }}</p>
+            <p class="stakes">Stakes: {{ stakes }}</p>
+        </header>
 
-<nav>
-<a href="{{ url_for('dashboard') }}">Dashboard</a>
-<a href="{{ url_for('history') }}">History</a>
-<a href="{{ url_for('side_bets') }}">Side Bets</a>
-<a href="{{ url_for('admin') }}">Admin</a>
-</nav>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('side_bets') }}">Side Bets</a>
+            <a href="{{ url_for('admin') }}">Admin</a>
+        </nav>
 
-<div class="admin-section">
-<h2>📋 How Snake Draft Works</h2>
-<p style="color: var(--text-muted); line-height: 1.8;">
-<strong>Snake Draft Order:</strong> Round 1 goes Larry → Andy, then Round 2 reverses to Andy → Larry, 
-and continues alternating. This makes it fair since whoever picks second in odd rounds picks first in even rounds.
-</p>
-<p style="color: var(--gold); margin-top: 0.5rem;">
-<strong>Draft Pattern:</strong> L-A, A-L, L-A, A-L, L-A (10 picks each)
-</p>
-</div>
+        <!-- Scores Section -->
+        <div class="scores-container">
+            <!-- Larry's Team -->
+            <div class="team-card larry-card">
+                <h2>🎯 Larry's Team</h2>
+                <div class="team-score">
+                    <span class="score-label">Total Score:</span>
+                    <span class="score-value {% if larry.total < andy.total %}winning{% elif larry.total > andy.total %}losing{% else %}tied{% endif %}">
+                        {{ larry.total }}
+                    </span>
+                </div>
+                
+                <h3 style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-muted);">
+                    Top 6 Counting (of 14 picked)
+                </h3>
+                <div class="player-list">
+                    {% for player in larry.top_6 %}
+                    <div class="player-item">
+                        <span class="player-name">{{ player.name }}</span>
+                        <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
+                            {{ player.score }}
+                        </span>
+                        <span class="player-status">{{ player.thru }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
 
-<div class="draft-container">
-<!-- Larry's Picks -->
-<div class="draft-board">
-<h2 style="color: var(--primary-blue);">🎯 Larry's Team</h2>
-<p style="color: var(--text-muted); margin-bottom: 1rem;">
-Picks: <strong id="larryPickCount">0</strong> / 10
-</p>
-<ul class="drafted-list" id="larryDrafted"></ul>
-</div>
+                <details style="margin-top: 1rem;">
+                    <summary style="cursor: pointer; color: var(--text-muted); font-size: 0.9rem;">
+                        Show All 14 Players
+                    </summary>
+                    <div class="player-list" style="margin-top: 0.5rem;">
+                        {% for player in larry.all_players %}
+                        <div class="player-item">
+                            <span class="player-name">{{ player.name }}</span>
+                            <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
+                                {{ player.score }}
+                            </span>
+                            <span class="player-status">{{ player.thru }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </details>
+            </div>
 
-<!-- Draft Order Center -->
-<div class="draft-board draft-order">
-<div id="turnIndicator" class="turn-indicator larry-turn">
-Larry's Turn
-</div>
-<div class="draft-pick-indicator" id="pickIndicator">
-Pick #<span id="pickNumber">1</span>
-</div>
-<div class="snake-order-viz">
-<div class="round-viz current">
-<span>Round 1:</span>
-<span>Larry → Andy</span>
-</div>
-<div class="round-viz">
-<span>Round 2:</span>
-<span>Andy → Larry</span>
-</div>
-<div class="round-viz">
-<span>Round 3:</span>
-<span>Larry → Andy</span>
-</div>
-<div class="round-viz">
-<span>Round 4:</span>
-<span>Andy → Larry</span>
-</div>
-<div class="round-viz">
-<span>Round 5:</span>
-<span>Larry → Andy</span>
-</div>
-</div>
-<button id="undoBtn" class="btn-secondary" style="margin-top: 1rem;" disabled>
-↶ Undo Last Pick
-</button>
-</div>
+            <!-- Andy's Team -->
+            <div class="team-card andy-card">
+                <h2>🎯 Andy's Team</h2>
+                <div class="team-score">
+                    <span class="score-label">Total Score:</span>
+                    <span class="score-value {% if andy.total < larry.total %}winning{% elif andy.total > larry.total %}losing{% else %}tied{% endif %}">
+                        {{ andy.total }}
+                    </span>
+                </div>
+                
+                <h3 style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-muted);">
+                    Top 6 Counting (of 14 picked)
+                </h3>
+                <div class="player-list">
+                    {% for player in andy.top_6 %}
+                    <div class="player-item">
+                        <span class="player-name">{{ player.name }}</span>
+                        <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
+                            {{ player.score }}
+                        </span>
+                        <span class="player-status">{{ player.thru }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
 
-<!-- Andy's Picks -->
-<div class="draft-board">
-<h2 style="color: var(--primary-red);">🎯 Andy's Team</h2>
-<p style="color: var(--text-muted); margin-bottom: 1rem;">
-Picks: <strong id="andyPickCount">0</strong> / 10
-</p>
-<ul class="drafted-list" id="andyDrafted"></ul>
-</div>
-</div>
+                <details style="margin-top: 1rem;">
+                    <summary style="cursor: pointer; color: var(--text-muted); font-size: 0.9rem;">
+                        Show All 14 Players
+                    </summary>
+                    <div class="player-list" style="margin-top: 0.5rem;">
+                        {% for player in andy.all_players %}
+                        <div class="player-item">
+                            <span class="player-name">{{ player.name }}</span>
+                            <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
+                                {{ player.score }}
+                            </span>
+                            <span class="player-status">{{ player.thru }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </details>
+            </div>
+        </div>
 
-<!-- Available Players -->
-<div class="admin-section">
-<h2>🏌️ Available Players (Click to Draft)</h2>
-<div class="available-players">
-<div id="playerPool">
-{% for player in players %}
-<div class="player-card" data-player="{{ player.name }}">
-<strong>{{ player.name }}</strong>
-<div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
-Score: {{ player.score }} | Thru: {{ player.thru }}
-</div>
-</div>
-{% endfor %}
-</div>
-</div>
-</div>
+        <!-- Side Bets Section -->
+        {% if side_bets.props and side_bets.active %}
+        <div class="admin-section">
+            <h2>🎲 Active Side Bets</h2>
+            <div class="side-bets-list">
+                {% for bet in side_bets.props %}
+                <div class="side-bet-item">
+                    <strong>{{ bet.description }}</strong>
+                    <span class="bet-stake">{{ bet.stake }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
 
-<!-- Save Draft -->
-<div class="admin-section" style="text-align: center;">
-<button id="saveDraftBtn" class="btn-primary" disabled>
-💾 Save Draft & Return to Dashboard
-</button>
-<a href="{{ url_for('admin') }}" class="btn-secondary" style="margin-left: 1rem;">
-← Back to Manual Picks
-</a>
-</div>
-</div>
+        <!-- Last Updated -->
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            Last Updated: <span id="lastUpdated">{{ last_updated }}</span>
+            <br>
+            <button id="refreshBtn" class="btn-secondary" style="margin-top: 0.5rem;">
+                🔄 Refresh Scores
+            </button>
+        </div>
+    </div>
 
-<script>
-const draftState = {
-picks: [], // Array of {team: 'larry'|'andy', player: 'name'}
-currentPick: 1,
-maxPicks: 20, // 10 per team
-snakeOrder: ['larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 
-'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry']
-};
+    <script>
+        // Auto-refresh every 60 seconds
+        let refreshInterval;
 
-const elements = {
-turnIndicator: document.getElementById('turnIndicator'),
-pickNumber: document.getElementById('pickNumber'),
-larryDrafted: document.getElementById('larryDrafted'),
-andyDrafted: document.getElementById('andyDrafted'),
-larryPickCount: document.getElementById('larryPickCount'),
-andyPickCount: document.getElementById('andyPickCount'),
-undoBtn: document.getElementById('undoBtn'),
-saveDraftBtn: document.getElementById('saveDraftBtn'),
-playerCards: document.querySelectorAll('.player-card')
-};
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                fetch('/api/refresh')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update last updated time
+                        document.getElementById('lastUpdated').textContent = data.last_updated;
+                        
+                        // You could update scores dynamically here
+                        // For now, we'll just reload the page to get fresh data
+                        window.location.reload();
+                    })
+                    .catch(error => console.error('Auto-refresh error:', error));
+            }, 60000); // 60 seconds
+        }
 
-// Initialize draft
-function initDraft() {
-elements.playerCards.forEach(card => {
-card.addEventListener('click', () => draftPlayer(card.dataset.player));
-});
+        // Manual refresh button
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            window.location.reload();
+        });
 
-elements.undoBtn.addEventListener('click', undoLastPick);
-elements.saveDraftBtn.addEventListener('click', saveDraft);
+        // Start auto-refresh on page load
+        startAutoRefresh();
 
-updateUI();
-}
-
-function draftPlayer(playerName) {
-if (draftState.currentPick > draftState.maxPicks) return;
-
-const card = document.querySelector(`[data-player="${playerName}"]`);
-if (card.classList.contains('selected')) return; // Already drafted
-
-const currentTeam = draftState.snakeOrder[draftState.currentPick - 1];
-
-draftState.picks.push({ team: currentTeam, player: playerName });
-card.classList.add('selected');
-
-addToTeamList(currentTeam, playerName, draftState.currentPick);
-
-draftState.currentPick++;
-updateUI();
-}
-
-function undoLastPick() {
-if (draftState.picks.length === 0) return;
-
-const lastPick = draftState.picks.pop();
-const card = document.querySelector(`[data-player="${lastPick.player}"]`);
-card.classList.remove('selected');
-
-removeFromTeamList(lastPick.team);
-
-draftState.currentPick--;
-updateUI();
-}
-
-function addToTeamList(team, playerName, pickNum) {
-const listEl = team === 'larry' ? elements.larryDrafted : elements.andyDrafted;
-const li = document.createElement('li');
-li.className = 'drafted-item';
-li.innerHTML = `
-               <span>${playerName}</span>
-               <span class="pick-number">#${pickNum}</span>
-           `;
-listEl.appendChild(li);
-}
-
-function removeFromTeamList(team) {
-const listEl = team === 'larry' ? elements.larryDrafted : elements.andyDrafted;
-listEl.removeChild(listEl.lastChild);
-}
-
-function updateUI() {
-// Update pick counts
-            const larryCoun = draftState.picks.filter(p => p.team === 'larry').length;
-            const larryCount = draftState.picks.filter(p => p.team === 'larry').length;
-const andyCount = draftState.picks.filter(p => p.team === 'andy').length;
-elements.larryPickCount.textContent = larryCount;
-elements.andyPickCount.textContent = andyCount;
-
-// Update pick number
-elements.pickNumber.textContent = draftState.currentPick;
-
-// Update turn indicator
-if (draftState.currentPick <= draftState.maxPicks) {
-const currentTeam = draftState.snakeOrder[draftState.currentPick - 1];
-elements.turnIndicator.textContent = currentTeam === 'larry' ? "Larry's Turn" : "Andy's Turn";
-elements.turnIndicator.className = `turn-indicator ${currentTeam}-turn`;
-} else {
-elements.turnIndicator.textContent = "Draft Complete!";
-elements.turnIndicator.className = "turn-indicator";
-elements.turnIndicator.style.background = "var(--primary-green)";
-}
-
-// Update buttons
-elements.undoBtn.disabled = draftState.picks.length === 0;
-elements.saveDraftBtn.disabled = draftState.currentPick <= draftState.maxPicks;
-
-// Update round visualization
-const currentRound = Math.ceil(draftState.currentPick / 2);
-document.querySelectorAll('.round-viz').forEach((viz, idx) => {
-viz.classList.toggle('current', idx + 1 === currentRound);
-});
-}
-
-function saveDraft() {
-const larryPicks = draftState.picks.filter(p => p.team === 'larry').map(p => p.player);
-const andyPicks = draftState.picks.filter(p => p.team === 'andy').map(p => p.player);
-
-// Create form and submit
-const form = document.createElement('form');
-form.method = 'POST';
-form.action = '{{ url_for("admin") }}';
-
-larryPicks.forEach(player => {
-const input = document.createElement('input');
-input.type = 'hidden';
-input.name = 'larry_picks';
-input.value = player;
-form.appendChild(input);
-});
-
-andyPicks.forEach(player => {
-const input = document.createElement('input');
-input.type = 'hidden';
-input.name = 'andy_picks';
-input.value = player;
-form.appendChild(input);
-});
-
-// Add stakes (keep existing or default)
-const stakesInput = document.createElement('input');
-stakesInput.type = 'hidden';
-stakesInput.name = 'stakes';
-stakesInput.value = 'Bragging Rights';
-form.appendChild(stakesInput);
-
-document.body.appendChild(form);
-form.submit();
-}
-
-// Initialize on load
-initDraft();
-</script>
+        // Stop auto-refresh when page is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(refreshInterval);
+            } else {
+                startAutoRefresh();
+            }
+        });
+    </script>
 </body>
 </html>
