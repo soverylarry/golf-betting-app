@@ -12,8 +12,8 @@ HISTORY_FILE = 'history.json'
 SETTINGS_FILE = 'settings.json'
 SIDE_BETS_FILE = 'side_bets.json'
 
-PLAYERS_PER_TEAM = 10
-COUNT_BEST = 4
+PLAYERS_PER_TEAM = 14
+COUNT_BEST = 6
 
 # Masters Tournament ID from Claude's sports data
 CURRENT_TOURNAMENT_ID = "ebf84425-7ae8-491e-a128-831d175e287a"
@@ -129,13 +129,13 @@ def calculate_team_score(picks, leaderboard):
     
     # Sort by score (lowest is best in golf)
     team_data.sort(key=lambda x: int(x['score']) if isinstance(x['score'], int) else 100)
-    top_4_players = team_data[:COUNT_BEST]
-    total_score = sum(int(p['score']) for p in top_4_players)
+    top_6_players = team_data[:COUNT_BEST]
+    total_score = sum(int(p['score']) for p in top_6_players)
     
     return {
         "total": total_score,
         "all_players": team_data,
-        "top_4": top_4_players
+        "top_6": top_6_players
     }
 
 # --- ROUTES ---
