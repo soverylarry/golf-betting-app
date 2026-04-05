@@ -155,7 +155,7 @@
                 and continues alternating. This makes it fair since whoever picks second in odd rounds picks first in even rounds.
             </p>
             <p style="color: var(--gold); margin-top: 0.5rem;">
-                <strong>Draft Pattern:</strong> L-A, A-L, L-A, A-L, L-A (10 picks each)
+                <strong>Draft Pattern:</strong> L-A, A-L, L-A, A-L, L-A, A-L, L-A (14 picks each)
             </p>
         </div>
 
@@ -164,7 +164,7 @@
             <div class="draft-board">
                 <h2 style="color: var(--primary-blue);">🎯 Larry's Team</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="larryPickCount">0</strong> / 10
+                    Picks: <strong id="larryPickCount">0</strong> / 14
                 </p>
                 <ul class="drafted-list" id="larryDrafted"></ul>
             </div>
@@ -198,6 +198,14 @@
                         <span>Round 5:</span>
                         <span>Larry → Andy</span>
                     </div>
+                    <div class="round-viz">
+                        <span>Round 6:</span>
+                        <span>Andy → Larry</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 7:</span>
+                        <span>Larry → Andy</span>
+                    </div>
                 </div>
                 <button id="undoBtn" class="btn-secondary" style="margin-top: 1rem;" disabled>
                     ↶ Undo Last Pick
@@ -208,7 +216,7 @@
             <div class="draft-board">
                 <h2 style="color: var(--primary-red);">🎯 Andy's Team</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="andyPickCount">0</strong> / 10
+                    Picks: <strong id="andyPickCount">0</strong> / 14
                 </p>
                 <ul class="drafted-list" id="andyDrafted"></ul>
             </div>
@@ -246,9 +254,10 @@
         const draftState = {
             picks: [], // Array of {team: 'larry'|'andy', player: 'name'}
             currentPick: 1,
-            maxPicks: 20, // 10 per team
+            maxPicks: 28, // 14 per team
             snakeOrder: ['larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 
-                         'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry']
+                         'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry',
+                         'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry']
         };
 
         const elements = {
