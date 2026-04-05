@@ -5,7 +5,7 @@ import pytz
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 app = Flask(__name__)
-
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 # --- CONFIGURATION ---
 PICKS_FILE = 'picks.json'
 HISTORY_FILE = 'history.json'
