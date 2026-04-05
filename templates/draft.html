@@ -137,7 +137,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎲 Snake Draft</h1>
+            <h1>🎲 Snake Draft - Masters Tournament</h1>
             <p class="tournament-name">Player Selection Draft Mode</p>
         </header>
 
@@ -151,28 +151,28 @@
         <div class="admin-section">
             <h2>📋 How Snake Draft Works</h2>
             <p style="color: var(--text-muted); line-height: 1.8;">
-                <strong>Snake Draft Order:</strong> Round 1 goes Larry → Andy, then Round 2 reverses to Andy → Larry, 
+                <strong>Snake Draft Order:</strong> Round 1 goes Andy → Larry, then Round 2 reverses to Larry → Andy, 
                 and continues alternating. This makes it fair since whoever picks second in odd rounds picks first in even rounds.
             </p>
             <p style="color: var(--gold); margin-top: 0.5rem;">
-                <strong>Draft Pattern:</strong> L-A, A-L, L-A, A-L, L-A, A-L, L-A (14 picks each)
+                <strong>Draft Pattern (14 rounds):</strong> A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A
             </p>
         </div>
 
         <div class="draft-container">
-            <!-- Larry's Picks -->
+            <!-- Andy's Picks (First Position - He picks first!) -->
             <div class="draft-board">
-                <h2 style="color: var(--primary-blue);">🎯 Larry's Team</h2>
+                <h2 style="color: var(--primary-red);">🎯 Andy's Team</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="larryPickCount">0</strong> / 14
+                    Picks: <strong id="andyPickCount">0</strong> / 14
                 </p>
-                <ul class="drafted-list" id="larryDrafted"></ul>
+                <ul class="drafted-list" id="andyDrafted"></ul>
             </div>
 
             <!-- Draft Order Center -->
             <div class="draft-board draft-order">
-                <div id="turnIndicator" class="turn-indicator larry-turn">
-                    Larry's Turn
+                <div id="turnIndicator" class="turn-indicator andy-turn">
+                    Andy's Turn
                 </div>
                 <div class="draft-pick-indicator" id="pickIndicator">
                     Pick #<span id="pickNumber">1</span>
@@ -180,30 +180,58 @@
                 <div class="snake-order-viz">
                     <div class="round-viz current">
                         <span>Round 1:</span>
-                        <span>Larry → Andy</span>
+                        <span>Andy → Larry</span>
                     </div>
                     <div class="round-viz">
                         <span>Round 2:</span>
-                        <span>Andy → Larry</span>
+                        <span>Larry → Andy</span>
                     </div>
                     <div class="round-viz">
                         <span>Round 3:</span>
-                        <span>Larry → Andy</span>
+                        <span>Andy → Larry</span>
                     </div>
                     <div class="round-viz">
                         <span>Round 4:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 5:</span>
                         <span>Larry → Andy</span>
                     </div>
                     <div class="round-viz">
-                        <span>Round 6:</span>
+                        <span>Round 5:</span>
                         <span>Andy → Larry</span>
                     </div>
                     <div class="round-viz">
+                        <span>Round 6:</span>
+                        <span>Larry → Andy</span>
+                    </div>
+                    <div class="round-viz">
                         <span>Round 7:</span>
+                        <span>Andy → Larry</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 8:</span>
+                        <span>Larry → Andy</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 9:</span>
+                        <span>Andy → Larry</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 10:</span>
+                        <span>Larry → Andy</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 11:</span>
+                        <span>Andy → Larry</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 12:</span>
+                        <span>Larry → Andy</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 13:</span>
+                        <span>Andy → Larry</span>
+                    </div>
+                    <div class="round-viz">
+                        <span>Round 14:</span>
                         <span>Larry → Andy</span>
                     </div>
                 </div>
@@ -212,13 +240,13 @@
                 </button>
             </div>
 
-            <!-- Andy's Picks -->
+            <!-- Larry's Picks -->
             <div class="draft-board">
-                <h2 style="color: var(--primary-red);">🎯 Andy's Team</h2>
+                <h2 style="color: var(--primary-blue);">🎯 Larry's Team</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="andyPickCount">0</strong> / 14
+                    Picks: <strong id="larryPickCount">0</strong> / 14
                 </p>
-                <ul class="drafted-list" id="andyDrafted"></ul>
+                <ul class="drafted-list" id="larryDrafted"></ul>
             </div>
         </div>
 
@@ -255,9 +283,23 @@
             picks: [], // Array of {team: 'larry'|'andy', player: 'name'}
             currentPick: 1,
             maxPicks: 28, // 14 per team
-            snakeOrder: ['larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 
-                         'andy', 'larry', 'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry',
-                         'larry', 'andy', 'andy', 'larry', 'larry', 'andy', 'andy', 'larry']
+            // ANDY PICKS FIRST - 14 round snake draft
+            snakeOrder: [
+                'andy', 'larry',   // Round 1: Andy → Larry
+                'larry', 'andy',   // Round 2: Larry → Andy (snake!)
+                'andy', 'larry',   // Round 3: Andy → Larry
+                'larry', 'andy',   // Round 4: Larry → Andy (snake!)
+                'andy', 'larry',   // Round 5: Andy → Larry
+                'larry', 'andy',   // Round 6: Larry → Andy (snake!)
+                'andy', 'larry',   // Round 7: Andy → Larry
+                'larry', 'andy',   // Round 8: Larry → Andy (snake!)
+                'andy', 'larry',   // Round 9: Andy → Larry
+                'larry', 'andy',   // Round 10: Larry → Andy (snake!)
+                'andy', 'larry',   // Round 11: Andy → Larry
+                'larry', 'andy',   // Round 12: Larry → Andy (snake!)
+                'andy', 'larry',   // Round 13: Andy → Larry
+                'larry', 'andy'    // Round 14: Larry → Andy (snake!)
+            ]
         };
 
         const elements = {
