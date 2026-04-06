@@ -156,7 +156,11 @@
                 and continues alternating. This makes it fair since whoever picks second in odd rounds picks first in even rounds.
             </p>
             <p style="color: var(--gold); margin-top: 0.5rem;">
-                <strong>Draft Pattern (14 rounds):</strong> A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A, A-L, L-A
+                <strong>Draft Pattern (15 rounds):</strong> Rounds 1-14 for main roster, Round 15 for backup player
+            </p>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.9rem;">
+                <strong>15th Player Rule:</strong> After selecting 14 main players, each team picks one backup player. 
+                This player can ONLY be used if one of your counting top-6 players withdraws after the 36-hole cut.
             </p>
         </div>
 
@@ -165,7 +169,7 @@
             <div class="draft-board">
                 <h2 style="color: var(--primary-red);">🎯 Andy's Team</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="andyPickCount">0</strong> / 14
+                    Picks: <strong id="andyPickCount">0</strong> / 15
                 </p>
                 <ul class="drafted-list" id="andyDrafted"></ul>
             </div>
@@ -235,6 +239,10 @@
                         <span>Round 14:</span>
                         <span>Larry → Andy</span>
                     </div>
+                    <div class="round-viz" style="background: var(--gold); color: var(--dark-bg); font-weight: bold;">
+                        <span>Round 15 (15th Man):</span>
+                        <span>Larry → Andy</span>
+                    </div>
                 </div>
                 <button id="undoBtn" class="btn-secondary" style="margin-top: 1rem;" disabled>
                     ↶ Undo Last Pick
@@ -245,7 +253,7 @@
             <div class="draft-board">
                 <h2 style="color: var(--primary-blue);">🎯 Larry's Team</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="larryPickCount">0</strong> / 14
+                    Picks: <strong id="larryPickCount">0</strong> / 15
                 </p>
                 <ul class="drafted-list" id="larryDrafted"></ul>
             </div>
@@ -281,10 +289,10 @@
 
     <script>
         const draftState = {
-            picks: [], // Array of {team: 'larry'|'andy', player: 'name'}
+            picks: [], // Array of {team: 'larry'|'andy', player: 'name', is15th: boolean}
             currentPick: 1,
-            maxPicks: 28, // 14 per team
-            // ANDY PICKS FIRST - 14 round snake draft
+            maxPicks: 30, // 15 per team (14 main + 1 backup)
+            // ANDY PICKS FIRST - 14 round snake draft + 1 round for 15th player
             snakeOrder: [
                 'andy', 'larry',   // Round 1: Andy → Larry
                 'larry', 'andy',   // Round 2: Larry → Andy (snake!)
@@ -299,7 +307,8 @@
                 'andy', 'larry',   // Round 11: Andy → Larry
                 'larry', 'andy',   // Round 12: Larry → Andy (snake!)
                 'andy', 'larry',   // Round 13: Andy → Larry
-                'larry', 'andy'    // Round 14: Larry → Andy (snake!)
+                'larry', 'andy',   // Round 14: Larry → Andy (snake!)
+                'larry', 'andy'    // Round 15 (15th Man): Larry → Andy
             ]
         };
 
@@ -361,9 +370,16 @@
             const listEl = team === 'larry' ? elements.larryDrafted : elements.andyDrafted;
             const li = document.createElement('li');
             li.className = 'drafted-item';
+            
+            // Mark the 15th player (pick 29 or 30) with special badge
+            const is15thPlayer = pickNum === 29 || pickNum === 30;
+            const badge = is15thPlayer ? 
+                `<span class="pick-number" style="background: var(--gold); color: var(--dark-bg);">15th</span>` :
+                `<span class="pick-number">#${pickNum}</span>`;
+            
             li.innerHTML = `
-                <span>${playerName}</span>
-                <span class="pick-number">#${pickNum}</span>
+                <span>${playerName}${is15thPlayer ? ' 🔄' : ''}</span>
+                ${badge}
             `;
             listEl.appendChild(li);
         }
