@@ -410,9 +410,11 @@
                 elements.turnIndicator.style.background = "var(--primary-green)";
             }
 
-            // Update buttons - FIXED: Enable save button when draft is complete
+            // Update buttons - TESTING MODE: Save enabled at any time
             elements.undoBtn.disabled = draftState.picks.length === 0;
-            elements.saveDraftBtn.disabled = !(draftState.currentPick > draftState.maxPicks);
+            // TEMPORARY FOR TESTING - allows save with partial draft
+            // TODO: Restore this line after testing: elements.saveDraftBtn.disabled = !(draftState.currentPick > draftState.maxPicks);
+            elements.saveDraftBtn.disabled = false;
 
             // Update round visualization
             const currentRound = Math.ceil(draftState.currentPick / 2);
@@ -424,6 +426,10 @@
         function saveDraft() {
             const larryPicks = draftState.picks.filter(p => p.team === 'larry').map(p => p.player);
             const andyPicks = draftState.picks.filter(p => p.team === 'andy').map(p => p.player);
+
+            console.log('Saving draft...');
+            console.log('Larry picks:', larryPicks);
+            console.log('Andy picks:', andyPicks);
 
             // Create form and submit
             const form = document.createElement('form');
@@ -454,6 +460,7 @@
             form.appendChild(stakesInput);
 
             document.body.appendChild(form);
+            console.log('Form created, submitting...');
             form.submit();
         }
 
