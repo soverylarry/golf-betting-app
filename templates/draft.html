@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <!-- FORCE REFRESH 2026-04-05 -->
-   <html lang="en">
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -395,9 +394,9 @@
                 elements.turnIndicator.style.background = "var(--primary-green)";
             }
 
-            // Update buttons
+            // Update buttons - FIXED: Enable save button when draft is complete
             elements.undoBtn.disabled = draftState.picks.length === 0;
-            elements.saveDraftBtn.disabled = draftState.currentPick <= draftState.maxPicks;
+            elements.saveDraftBtn.disabled = !(draftState.currentPick > draftState.maxPicks);
 
             // Update round visualization
             const currentRound = Math.ceil(draftState.currentPick / 2);
