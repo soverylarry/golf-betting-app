@@ -5,126 +5,278 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Larry vs Andy Golf</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .side-bet-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .preset-btn {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .preset-btn:hover {
+            border-color: var(--primary-green);
+            background: #f0f9f0;
+        }
+        
+        .preset-btn.active {
+            border-color: var(--primary-green);
+            background: var(--primary-green);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .custom-input {
+            display: none;
+            margin-top: 0.75rem;
+        }
+        
+        .custom-input.show {
+            display: block;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .info-box {
+            background: #fffbf0;
+            border-left: 4px solid var(--gold);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .info-box p {
+            margin: 0.25rem 0;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>⚙️ Admin Panel</h1>
-            <p class="tournament-name">Pick Players & Set Stakes</p>
+            <p class="tournament-name">Tournament Configuration</p>
         </header>
 
         <nav>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('draft') }}">Draft</a>
             <a href="{{ url_for('history') }}">History</a>
             <a href="{{ url_for('side_bets') }}">Side Bets</a>
             <a href="{{ url_for('admin') }}" class="active">Admin</a>
         </nav>
 
-        <form method="POST" action="{{ url_for('admin') }}">
-            <!-- Stakes Section -->
+        <div class="info-box">
+            <p><strong>ℹ️ Admin Panel:</strong> Configure tournament settings and side bets here.</p>
+            <p><strong>Player Selection:</strong> Use the <a href="{{ url_for('draft') }}" style="color: var(--primary-green); font-weight: bold;">Draft Page</a> to pick your 14-player teams.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin') }}" id="adminForm">
+            <!-- Tournament Settings -->
             <div class="admin-section">
-                <h2>💰 Set Stakes</h2>
+                <h2>🏆 Tournament Settings</h2>
                 <div class="form-group">
-                    <label for="stakes">What are we playing for?</label>
+                    <label for="tournament_name">Tournament Name</label>
+                    <input type="text" 
+                           id="tournament_name" 
+                           name="tournament_name" 
+                           value="{{ tournament_name or 'The Masters Tournament' }}" 
+                           placeholder="The Masters Tournament"
+                           autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label for="stakes">Main Stakes (What are we playing for?)</label>
                     <input type="text" 
                            id="stakes" 
                            name="stakes" 
-                           value="{{ stakes }}" 
+                           value="{{ stakes or 'Bragging Rights' }}" 
                            placeholder="e.g., $20, Dinner, Bragging Rights"
                            autocomplete="off">
                 </div>
             </div>
 
-            <!-- Larry's Picks -->
+            <!-- Side Bets Section -->
             <div class="admin-section">
-                <h2>🎯 Larry's Team (Pick {{ 10 }} Players)</h2>
+                <h2>🎲 Side Bets (First 36 Holes Only)</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Currently selected: <strong id="larryCount">{{ current.larry|length }}</strong> / 10
+                    Side bets apply to Thursday and Friday rounds only
                 </p>
-                <div class="player-selector">
-                    {% for player in players %}
-                    <label>
-                        <input type="checkbox" 
-                               name="larry_picks" 
-                               value="{{ player.name }}"
-                               class="larry-checkbox"
-                               {% if player.name in current.larry %}checked{% endif %}>
-                        {{ player.name }}
+                
+                <div class="side-bet-section">
+                    <label style="display: block; margin-bottom: 0.75rem; font-weight: bold;">
+                        Side Bet Name
                     </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Andy's Picks -->
-            <div class="admin-section">
-                <h2>🎯 Andy's Team (Pick {{ 10 }} Players)</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Currently selected: <strong id="andyCount">{{ current.andy|length }}</strong> / 10
-                </p>
-                <div class="player-selector">
-                    {% for player in players %}
-                    <label>
-                        <input type="checkbox" 
-                               name="andy_picks" 
-                               value="{{ player.name }}"
-                               class="andy-checkbox"
-                               {% if player.name in current.andy %}checked{% endif %}>
-                        {{ player.name }}
-                    </label>
-                    {% endfor %}
+                    
+                    <div class="preset-buttons">
+                        <button type="button" class="preset-btn" data-value="Lowest 36-Hole Score">
+                            Lowest 36-Hole Score
+                        </button>
+                        <button type="button" class="preset-btn" data-value="Most Birdies Thu-Fri">
+                            Most Birdies Thu-Fri
+                        </button>
+                        <button type="button" class="preset-btn" data-value="Best Single Round">
+                            Best Single Round
+                        </button>
+                        <button type="button" class="preset-btn" data-value="Lowest First Round">
+                            Lowest First Round
+                        </button>
+                        <button type="button" class="preset-btn" data-value="Custom">
+                            ✏️ Custom
+                        </button>
+                    </div>
+                    
+                    <div class="custom-input" id="customBetName">
+                        <label for="custom_side_bet_name">Custom Side Bet Name</label>
+                        <input type="text" 
+                               id="custom_side_bet_name"
+                               placeholder="Enter your custom side bet name"
+                               autocomplete="off">
+                    </div>
+                    
+                    <input type="hidden" id="side_bet_name" name="side_bet_name" value="{{ side_bet_name or '' }}">
+                    
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="side_bet_amount">Side Bet Amount</label>
+                        <input type="text" 
+                               id="side_bet_amount" 
+                               name="side_bet_amount" 
+                               value="{{ side_bet_amount or '' }}" 
+                               placeholder="e.g., $10, Lunch, Loser Buys Drinks"
+                               autocomplete="off">
+                    </div>
                 </div>
             </div>
 
             <!-- Actions -->
             <div class="admin-section" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-                <button type="submit" class="btn-primary">💾 Save Picks & Stakes</button>
-                <a href="{{ url_for('draft') }}" class="btn-secondary">🎲 Use Draft Mode</a>
-                <button type="submit" name="archive_week" class="btn-secondary" 
-                        style="background: var(--gold);"
-                        onclick="return confirm('Archive this tournament and reset for next week?')">
-                    📦 Archive Tournament
+                <button type="submit" class="btn-primary">💾 Save Settings</button>
+                <button type="submit" name="clear_side_bet" value="true" class="btn-secondary"
+                        onclick="return confirm('Clear current side bet?')">
+                    🗑️ Clear Side Bet
                 </button>
             </div>
         </form>
 
-        <div style="margin-top: 2rem; text-align: center;">
-            <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Back to Dashboard</a>
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <a href="{{ url_for('draft') }}" class="btn-primary" style="text-decoration: none;">
+                🎲 Go to Draft (Select Teams)
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn-secondary" style="text-decoration: none;">
+                📊 View Dashboard
+            </a>
+        </div>
+
+        <!-- Archive Section -->
+        <div class="admin-section" style="margin-top: 3rem; border-top: 2px solid var(--border); padding-top: 2rem;">
+            <h2 style="color: var(--gold);">📦 Tournament Management</h2>
+            <form method="POST" action="{{ url_for('admin') }}" style="text-align: center;">
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Archive current tournament and reset for next event
+                </p>
+                <button type="submit" name="archive_week" class="btn-secondary" 
+                        style="background: var(--gold);"
+                        onclick="return confirm('Archive this tournament and reset everything?')">
+                    📦 Archive & Reset Tournament
+                </button>
+            </form>
         </div>
     </div>
 
     <script>
-        // Count checkboxes and enforce 10-player limit
-        const larryCheckboxes = document.querySelectorAll('.larry-checkbox');
-        const andyCheckboxes = document.querySelectorAll('.andy-checkbox');
-        const larryCountEl = document.getElementById('larryCount');
-        const andyCountEl = document.getElementById('andyCount');
-
-        function updateCount(checkboxes, countEl, maxPlayers = 10) {
-            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            countEl.textContent = checkedCount;
-            countEl.style.color = checkedCount > maxPlayers ? 'var(--primary-red)' : 'var(--primary-green)';
-            
-            // Disable unchecked boxes if limit reached
-            if (checkedCount >= maxPlayers) {
-                checkboxes.forEach(cb => {
-                    if (!cb.checked) cb.disabled = true;
-                });
+        // Side Bet Preset Button Logic
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const customInput = document.getElementById('customBetName');
+        const customTextInput = document.getElementById('custom_side_bet_name');
+        const hiddenBetName = document.getElementById('side_bet_name');
+        
+        // Set initial active state based on saved value
+        const savedBetName = hiddenBetName.value;
+        if (savedBetName) {
+            const matchingBtn = Array.from(presetButtons).find(btn => btn.dataset.value === savedBetName);
+            if (matchingBtn) {
+                matchingBtn.classList.add('active');
             } else {
-                checkboxes.forEach(cb => cb.disabled = false);
+                // It's a custom value
+                const customBtn = Array.from(presetButtons).find(btn => btn.dataset.value === 'Custom');
+                if (customBtn) {
+                    customBtn.classList.add('active');
+                    customInput.classList.add('show');
+                    customTextInput.value = savedBetName;
+                }
             }
         }
-
-        larryCheckboxes.forEach(cb => {
-            cb.addEventListener('change', () => updateCount(larryCheckboxes, larryCountEl));
+        
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active from all buttons
+                presetButtons.forEach(b => b.classList.remove('active'));
+                
+                // Add active to clicked button
+                btn.classList.add('active');
+                
+                const value = btn.dataset.value;
+                
+                if (value === 'Custom') {
+                    customInput.classList.add('show');
+                    hiddenBetName.value = customTextInput.value || '';
+                } else {
+                    customInput.classList.remove('show');
+                    hiddenBetName.value = value;
+                }
+            });
         });
-
-        andyCheckboxes.forEach(cb => {
-            cb.addEventListener('change', () => updateCount(andyCheckboxes, andyCountEl));
+        
+        // Update hidden field when custom input changes
+        customTextInput.addEventListener('input', (e) => {
+            hiddenBetName.value = e.target.value;
         });
-
-        // Initial count update
-        updateCount(larryCheckboxes, larryCountEl);
-        updateCount(andyCheckboxes, andyCountEl);
+        
+        // Form validation
+        document.getElementById('adminForm').addEventListener('submit', (e) => {
+            const sideBetAmount = document.getElementById('side_bet_amount').value.trim();
+            const sideBetName = hiddenBetName.value.trim();
+            
+            // If side bet amount is filled but no name selected, prevent submit
+            if (sideBetAmount && !sideBetName) {
+                e.preventDefault();
+                alert('Please select or enter a side bet name.');
+                return false;
+            }
+            
+            // If custom is selected but no text entered, prevent submit
+            const customBtn = Array.from(presetButtons).find(btn => btn.dataset.value === 'Custom');
+            if (customBtn && customBtn.classList.contains('active') && !customTextInput.value.trim()) {
+                e.preventDefault();
+                alert('Please enter a custom side bet name or choose a preset.');
+                return false;
+            }
+        });
     </script>
 </body>
 </html>
