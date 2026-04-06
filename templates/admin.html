@@ -6,51 +6,6 @@
     <title>Admin | Larry vs Andy Golf</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .side-bet-section {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-        
-        .preset-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .preset-btn {
-            padding: 0.75rem;
-            border: 2px solid var(--border);
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-        
-        .preset-btn:hover {
-            border-color: var(--primary-green);
-            background: #f0f9f0;
-        }
-        
-        .preset-btn.active {
-            border-color: var(--primary-green);
-            background: var(--primary-green);
-            color: white;
-            font-weight: bold;
-        }
-        
-        .custom-input {
-            display: none;
-            margin-top: 0.75rem;
-        }
-        
-        .custom-input.show {
-            display: block;
-        }
-        
         .quick-links {
             display: flex;
             gap: 1rem;
@@ -118,68 +73,9 @@
                 </div>
             </div>
 
-            <!-- Side Bets Section -->
-            <div class="admin-section">
-                <h2>🎲 Side Bets (First 36 Holes Only)</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Side bets apply to Thursday and Friday rounds only
-                </p>
-                
-                <div class="side-bet-section">
-                    <label style="display: block; margin-bottom: 0.75rem; font-weight: bold;">
-                        Side Bet Name
-                    </label>
-                    
-                    <div class="preset-buttons">
-                        <button type="button" class="preset-btn" data-value="Low Major">
-                            Low Major
-                        </button>
-                        <button type="button" class="preset-btn" data-value="Low US-Ryder">
-                            Low US-Ryder
-                        </button>
-                        <button type="button" class="preset-btn" data-value="Low Euro-Ryder">
-                            Low Euro-Ryder
-                        </button>
-                        <button type="button" class="preset-btn" data-value="Low Presidents">
-                            Low Presidents
-                        </button>
-                        <button type="button" class="preset-btn" data-value="Low Yet to Win a Major">
-                            Low Yet to Win a Major
-                        </button>
-                        <button type="button" class="preset-btn" data-value="Custom">
-                            ✏️ Custom
-                        </button>
-                    </div>
-                    
-                    <div class="custom-input" id="customBetName">
-                        <label for="custom_side_bet_name">Custom Side Bet Name</label>
-                        <input type="text" 
-                               id="custom_side_bet_name"
-                               placeholder="Enter your custom side bet name"
-                               autocomplete="off">
-                    </div>
-                    
-                    <input type="hidden" id="side_bet_name" name="side_bet_name" value="{{ side_bet_name or '' }}">
-                    
-                    <div class="form-group" style="margin-top: 1rem;">
-                        <label for="side_bet_amount">Side Bet Amount</label>
-                        <input type="text" 
-                               id="side_bet_amount" 
-                               name="side_bet_amount" 
-                               value="{{ side_bet_amount or '' }}" 
-                               placeholder="e.g., $10, Lunch, Loser Buys Drinks"
-                               autocomplete="off">
-                    </div>
-                </div>
-            </div>
-
             <!-- Actions -->
             <div class="admin-section" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
                 <button type="submit" class="btn-primary">💾 Save Settings</button>
-                <button type="submit" name="clear_side_bet" value="true" class="btn-secondary"
-                        onclick="return confirm('Clear current side bet?')">
-                    🗑️ Clear Side Bet
-                </button>
             </div>
         </form>
 
@@ -210,76 +106,8 @@
     </div>
 
     <script>
-        // Side Bet Preset Button Logic
-        const presetButtons = document.querySelectorAll('.preset-btn');
-        const customInput = document.getElementById('customBetName');
-        const customTextInput = document.getElementById('custom_side_bet_name');
-        const hiddenBetName = document.getElementById('side_bet_name');
-        
-        // Set initial active state based on saved value
-        const savedBetName = hiddenBetName.value;
-        if (savedBetName) {
-            const matchingBtn = Array.from(presetButtons).find(btn => btn.dataset.value === savedBetName);
-            if (matchingBtn) {
-                matchingBtn.classList.add('active');
-            } else {
-                // It's a custom value
-                const customBtn = Array.from(presetButtons).find(btn => btn.dataset.value === 'Custom');
-                if (customBtn) {
-                    customBtn.classList.add('active');
-                    customInput.classList.add('show');
-                    customTextInput.value = savedBetName;
-                }
-            }
-        }
-        
-        presetButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Remove active from all buttons
-                presetButtons.forEach(b => b.classList.remove('active'));
-                
-                // Add active to clicked button
-                btn.classList.add('active');
-                
-                const value = btn.dataset.value;
-                
-                if (value === 'Custom') {
-                    customInput.classList.add('show');
-                    hiddenBetName.value = customTextInput.value || '';
-                } else {
-                    customInput.classList.remove('show');
-                    hiddenBetName.value = value;
-                }
-            });
-        });
-        
-        // Update hidden field when custom input changes
-        customTextInput.addEventListener('input', (e) => {
-            hiddenBetName.value = e.target.value;
-        });
-        
-        // Form validation
-        document.getElementById('adminForm').addEventListener('submit', (e) => {
-            const sideBetAmount = document.getElementById('side_bet_amount').value.trim();
-            const sideBetName = hiddenBetName.value.trim();
-            
-            // If side bet amount is filled but no name selected, prevent submit
-            if (sideBetAmount && !sideBetName) {
-                e.preventDefault();
-                alert('Please select or enter a side bet name.');
-                return false;
-            }
-            
-            // If custom is selected but no text entered, prevent submit
-            const customBtn = Array.from(presetButtons).find(btn => btn.dataset.value === 'Custom');
-            if (customBtn && customBtn.classList.contains('active') && !customTextInput.value.trim()) {
-                e.preventDefault();
-                alert('Please enter a custom side bet name or choose a preset.');
-                return false;
-            }
-        });
+        // Admin page is now just for tournament settings
+        // Side bet configuration moved to dedicated Side Bets page
     </script>
 </body>
 </html>
