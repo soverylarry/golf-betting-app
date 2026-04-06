@@ -1,42 +1,224 @@
 <!DOCTYPE html>
-<!-- FORCE REFRESH 2026-04-05 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Draft | Larry vs Andy Golf</title>
+    <title>Snake Draft | Larry vs Andy Golf</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --masters-green: #006747;
+            --masters-gold: #C5A572;
+            --draft-bg: #0a1f1a;
+            --card-hover: #134d3a;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0a1f1a 0%, #134d3a 100%);
+        }
+
+        .draft-header {
+            background: linear-gradient(to right, var(--masters-green), #134d3a);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .draft-header h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 3px;
+            color: var(--masters-gold);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* PROMINENT TURN INDICATOR */
+        .now-picking-banner {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #2563eb 100%);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .now-picking-banner.andy-picking {
+            background: linear-gradient(135deg, var(--primary-red) 0%, #dc2626 100%);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        .now-picking-banner.complete {
+            background: linear-gradient(135deg, var(--masters-green) 0%, var(--masters-gold) 100%);
+            box-shadow: 0 4px 20px rgba(197, 165, 114, 0.4);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .now-picking-banner h2 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-family: 'Bebas Neue', cursive;
+            letter-spacing: 2px;
+        }
+
+        .now-picking-banner .pick-info {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        /* DRAFT LAYOUT */
         .draft-container {
             display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-columns: 350px 1fr 350px;
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
-        @media (max-width: 968px) {
+        @media (max-width: 1200px) {
             .draft-container {
                 grid-template-columns: 1fr;
             }
         }
 
-        .draft-board {
+        /* TEAM ROSTER BOXES */
+        .team-roster {
             background: var(--card-bg);
             border-radius: 12px;
             padding: 1.5rem;
-            min-height: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            min-height: 600px;
         }
 
-        .available-players {
-            grid-column: span 1;
-            max-height: 600px;
+        .team-roster h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            margin: 0 0 1rem 0;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pick-counter {
+            font-size: 1rem;
+            opacity: 0.7;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        /* NUMBERED PICK SLOTS */
+        .pick-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .pick-slot {
+            background: var(--dark-bg);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .pick-slot.filled {
+            background: linear-gradient(135deg, rgba(0, 103, 71, 0.3) 0%, rgba(19, 77, 58, 0.3) 100%);
+            border: 2px solid var(--masters-green);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .pick-slot.backup {
+            background: rgba(197, 165, 114, 0.1);
+            border-color: var(--masters-gold);
+        }
+
+        .pick-slot.filled.backup {
+            background: linear-gradient(135deg, rgba(197, 165, 114, 0.3) 0%, rgba(197, 165, 114, 0.2) 100%);
+            border-color: var(--masters-gold);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slot-number {
+            background: var(--masters-green);
+            color: white;
+            min-width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .pick-slot.backup .slot-number {
+            background: var(--masters-gold);
+            color: var(--dark-bg);
+        }
+
+        .slot-player {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .pick-slot:not(.filled) .slot-player {
+            color: rgba(255, 255, 255, 0.3);
+            font-style: italic;
+        }
+
+        /* PLAYER POOL */
+        .player-pool-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-pool-section h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            margin: 0 0 1rem 0;
+            letter-spacing: 1px;
+            color: var(--masters-gold);
+        }
+
+        .player-pool {
+            max-height: 500px;
             overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
         }
 
         .player-card {
             background: var(--dark-bg);
             padding: 1rem;
-            margin-bottom: 0.75rem;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
@@ -44,103 +226,98 @@
         }
 
         .player-card:hover {
-            transform: translateX(5px);
-            border-color: var(--primary-green);
+            transform: translateY(-2px);
+            border-color: var(--masters-green);
+            box-shadow: 0 4px 12px rgba(0, 103, 71, 0.3);
         }
 
         .player-card.selected {
             opacity: 0.3;
             cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .player-card.selected:hover {
             transform: none;
             border-color: transparent;
+            box-shadow: none;
         }
 
-        .draft-order {
-            text-align: center;
-            padding: 2rem;
+        .player-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
         }
 
-        .draft-pick-indicator {
-            font-size: 3rem;
-            margin: 2rem 0;
-        }
-
-        .turn-indicator {
-            font-size: 1.5rem;
-            font-weight: bold;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .turn-indicator.larry-turn {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        .turn-indicator.andy-turn {
-            background: var(--primary-red);
-            color: white;
-        }
-
-        .drafted-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .drafted-item {
-            background: var(--dark-bg);
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pick-number {
-            background: var(--primary-green);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .snake-order-viz {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-
-        .round-viz {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem;
-            background: var(--dark-bg);
-            border-radius: 6px;
+        .player-stats {
             font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
-        .round-viz.current {
-            border: 2px solid var(--primary-green);
+        /* CONTROLS */
+        .draft-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-draft {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-draft.primary {
+            background: linear-gradient(135deg, var(--masters-green) 0%, #134d3a 100%);
+            color: white;
+        }
+
+        .btn-draft.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 103, 71, 0.4);
+        }
+
+        .btn-draft.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn-draft.secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-draft:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* INSTRUCTIONS */
+        .draft-instructions {
+            background: rgba(197, 165, 114, 0.1);
+            border-left: 4px solid var(--masters-gold);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .draft-instructions p {
+            margin: 0.5rem 0;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🎲 Snake Draft - Masters Tournament</h1>
-            <p class="tournament-name">Player Selection Draft Mode</p>
-        </header>
+        <div class="draft-header">
+            <h1>⛳ SNAKE DRAFT</h1>
+            <p style="margin: 0.5rem 0 0 0; color: var(--masters-gold); font-size: 1.1rem;">Masters Tournament 2026</p>
+        </div>
 
         <nav>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
@@ -149,191 +326,188 @@
             <a href="{{ url_for('admin') }}">Admin</a>
         </nav>
 
-        <div class="admin-section">
-            <h2>📋 How Snake Draft Works</h2>
-            <p style="color: var(--text-muted); line-height: 1.8;">
-                <strong>Snake Draft Order:</strong> Round 1 goes Andy → Larry, then Round 2 reverses to Larry → Andy, 
-                and continues alternating. This makes it fair since whoever picks second in odd rounds picks first in even rounds.
-            </p>
-            <p style="color: var(--gold); margin-top: 0.5rem;">
-                <strong>Draft Pattern (15 rounds):</strong> Rounds 1-14 for main roster, Round 15 for backup player
-            </p>
-            <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.9rem;">
-                <strong>15th Player Rule:</strong> After selecting 14 main players, each team picks one backup player. 
-                This player can ONLY be used if one of your counting top-6 players withdraws after the 36-hole cut.
-            </p>
+        <!-- PROMINENT TURN INDICATOR -->
+        <div id="nowPickingBanner" class="now-picking-banner andy-picking">
+            <h2 id="turnText">🎯 ANDY IS PICKING</h2>
+            <div class="pick-info">Pick #<span id="pickNumber">1</span> of 30</div>
         </div>
 
+        <!-- DRAFT INSTRUCTIONS -->
+        <div class="draft-instructions">
+            <p><strong>📋 How It Works:</strong> Snake draft with 15 rounds. Andy picks first in Round 1, then the order reverses each round. Picks 1-14 are your main roster (top 6 count). Pick 15 is your backup player (only usable if a counting player withdraws after Round 2).</p>
+        </div>
+
+        <!-- DRAFT CONTAINER -->
         <div class="draft-container">
-            <!-- Andy's Picks (First Position - He picks first!) -->
-            <div class="draft-board">
-                <h2 style="color: var(--primary-red);">🎯 Andy's Team</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="andyPickCount">0</strong> / 15
-                </p>
-                <ul class="drafted-list" id="andyDrafted"></ul>
+            <!-- ANDY'S ROSTER -->
+            <div class="team-roster">
+                <h3 style="color: var(--primary-red);">
+                    🎯 Andy's Team
+                    <span class="pick-counter"><span id="andyCount">0</span>/15</span>
+                </h3>
+                <div class="pick-slots" id="andySlots">
+                    <!-- Picks 1-14 (main roster) -->
+                    <div class="pick-slot"><div class="slot-number">1</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">2</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">3</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">4</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">5</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">6</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">7</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">8</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">9</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">10</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">11</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">12</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">13</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">14</div><div class="slot-player">Awaiting pick...</div></div>
+                    <!-- Pick 15 (backup) -->
+                    <div class="pick-slot backup"><div class="slot-number">15</div><div class="slot-player">Backup player...</div></div>
+                </div>
             </div>
 
-            <!-- Draft Order Center -->
-            <div class="draft-board draft-order">
-                <div id="turnIndicator" class="turn-indicator andy-turn">
-                    Andy's Turn
-                </div>
-                <div class="draft-pick-indicator" id="pickIndicator">
-                    Pick #<span id="pickNumber">1</span>
-                </div>
-                <div class="snake-order-viz">
-                    <div class="round-viz current">
-                        <span>Round 1:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 2:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 3:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 4:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 5:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 6:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 7:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 8:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 9:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 10:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 11:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 12:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 13:</span>
-                        <span>Andy → Larry</span>
-                    </div>
-                    <div class="round-viz">
-                        <span>Round 14:</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                    <div class="round-viz" style="background: var(--gold); color: var(--dark-bg); font-weight: bold;">
-                        <span>Round 15 (15th Man):</span>
-                        <span>Larry → Andy</span>
-                    </div>
-                </div>
-                <button id="undoBtn" class="btn-secondary" style="margin-top: 1rem;" disabled>
-                    ↶ Undo Last Pick
-                </button>
-            </div>
-
-            <!-- Larry's Picks -->
-            <div class="draft-board">
-                <h2 style="color: var(--primary-blue);">🎯 Larry's Team</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                    Picks: <strong id="larryPickCount">0</strong> / 15
-                </p>
-                <ul class="drafted-list" id="larryDrafted"></ul>
-            </div>
-        </div>
-
-        <!-- Available Players -->
-        <div class="admin-section">
-            <h2>🏌️ Available Players (Click to Draft)</h2>
-            <div class="available-players">
-                <div id="playerPool">
+            <!-- PLAYER POOL -->
+            <div class="player-pool-section">
+                <h3>🏌️ Available Players (Click to Draft)</h3>
+                <div class="player-pool" id="playerPool">
                     {% for player in players %}
                     <div class="player-card" data-player="{{ player.name }}">
-                        <strong>{{ player.name }}</strong>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
-                            Score: {{ player.score }} | Thru: {{ player.thru }}
-                        </div>
+                        <div class="player-name">{{ player.name }}</div>
+                        <div class="player-stats">Score: {{ player.score }} | Thru: {{ player.thru }}</div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+
+            <!-- LARRY'S ROSTER -->
+            <div class="team-roster">
+                <h3 style="color: var(--primary-blue);">
+                    🎯 Larry's Team
+                    <span class="pick-counter"><span id="larryCount">0</span>/15</span>
+                </h3>
+                <div class="pick-slots" id="larrySlots">
+                    <!-- Picks 1-14 (main roster) -->
+                    <div class="pick-slot"><div class="slot-number">1</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">2</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">3</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">4</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">5</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">6</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">7</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">8</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">9</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">10</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">11</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">12</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">13</div><div class="slot-player">Awaiting pick...</div></div>
+                    <div class="pick-slot"><div class="slot-number">14</div><div class="slot-player">Awaiting pick...</div></div>
+                    <!-- Pick 15 (backup) -->
+                    <div class="pick-slot backup"><div class="slot-number">15</div><div class="slot-player">Backup player...</div></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Save Draft -->
-        <div class="admin-section" style="text-align: center;">
-            <button id="saveDraftBtn" class="btn-primary" disabled>
-                💾 Save Draft & Return to Dashboard
-            </button>
-            <a href="{{ url_for('admin') }}" class="btn-secondary" style="margin-left: 1rem;">
-                ← Back to Manual Picks
-            </a>
+        <!-- DRAFT CONTROLS -->
+        <div class="draft-controls">
+            <button id="undoBtn" class="btn-draft secondary" disabled>↶ Undo Last Pick</button>
+            <button id="saveDraftBtn" class="btn-draft primary" disabled>💾 Save Draft & Continue</button>
         </div>
     </div>
 
     <script>
         const draftState = {
-            picks: [], // Array of {team: 'larry'|'andy', player: 'name', is15th: boolean}
+            picks: [], // Array of {team: 'larry'|'andy', player: 'name'}
             currentPick: 1,
-            maxPicks: 30, // 15 per team (14 main + 1 backup)
-            // ANDY PICKS FIRST - 14 round snake draft + 1 round for 15th player
+            maxPicks: 30, // 15 per team
+            // Snake order: Andy picks first
             snakeOrder: [
-                'andy', 'larry',   // Round 1: Andy → Larry
-                'larry', 'andy',   // Round 2: Larry → Andy (snake!)
-                'andy', 'larry',   // Round 3: Andy → Larry
-                'larry', 'andy',   // Round 4: Larry → Andy (snake!)
-                'andy', 'larry',   // Round 5: Andy → Larry
-                'larry', 'andy',   // Round 6: Larry → Andy (snake!)
-                'andy', 'larry',   // Round 7: Andy → Larry
-                'larry', 'andy',   // Round 8: Larry → Andy (snake!)
-                'andy', 'larry',   // Round 9: Andy → Larry
-                'larry', 'andy',   // Round 10: Larry → Andy (snake!)
-                'andy', 'larry',   // Round 11: Andy → Larry
-                'larry', 'andy',   // Round 12: Larry → Andy (snake!)
-                'andy', 'larry',   // Round 13: Andy → Larry
-                'larry', 'andy',   // Round 14: Larry → Andy (snake!)
-                'larry', 'andy'    // Round 15 (15th Man): Larry → Andy
+                'andy', 'larry',   // Round 1
+                'larry', 'andy',   // Round 2 (snake!)
+                'andy', 'larry',   // Round 3
+                'larry', 'andy',   // Round 4 (snake!)
+                'andy', 'larry',   // Round 5
+                'larry', 'andy',   // Round 6 (snake!)
+                'andy', 'larry',   // Round 7
+                'larry', 'andy',   // Round 8 (snake!)
+                'andy', 'larry',   // Round 9
+                'larry', 'andy',   // Round 10 (snake!)
+                'andy', 'larry',   // Round 11
+                'larry', 'andy',   // Round 12 (snake!)
+                'andy', 'larry',   // Round 13
+                'larry', 'andy',   // Round 14 (snake!)
+                'larry', 'andy'    // Round 15 (backup: Larry→Andy)
             ]
         };
 
         const elements = {
-            turnIndicator: document.getElementById('turnIndicator'),
+            nowPickingBanner: document.getElementById('nowPickingBanner'),
+            turnText: document.getElementById('turnText'),
             pickNumber: document.getElementById('pickNumber'),
-            larryDrafted: document.getElementById('larryDrafted'),
-            andyDrafted: document.getElementById('andyDrafted'),
-            larryPickCount: document.getElementById('larryPickCount'),
-            andyPickCount: document.getElementById('andyPickCount'),
+            larryCount: document.getElementById('larryCount'),
+            andyCount: document.getElementById('andyCount'),
+            larrySlots: document.getElementById('larrySlots'),
+            andySlots: document.getElementById('andySlots'),
             undoBtn: document.getElementById('undoBtn'),
             saveDraftBtn: document.getElementById('saveDraftBtn'),
             playerCards: document.querySelectorAll('.player-card')
         };
 
-        // Initialize draft
-        function initDraft() {
-            elements.playerCards.forEach(card => {
-                card.addEventListener('click', () => draftPlayer(card.dataset.player));
-            });
+        // Load saved picks from backend
+        async function loadSavedPicks() {
+            try {
+                const response = await fetch('/picks.json');
+                const data = await response.json();
+                
+                if (data.larry && data.larry.length > 0) {
+                    // Reconstruct picks in snake order
+                    const larryPicks = data.larry;
+                    const andyPicks = data.andy;
+                    
+                    // Reconstruct the draft order
+                    let pickIndex = 0;
+                    while (pickIndex < 30 && (larryPicks.length > 0 || andyPicks.length > 0)) {
+                        const currentTeam = draftState.snakeOrder[pickIndex];
+                        
+                        if (currentTeam === 'larry' && larryPicks.length > 0) {
+                            const player = larryPicks.shift();
+                            draftState.picks.push({ team: 'larry', player: player });
+                            markPlayerAsSelected(player);
+                            fillSlot('larry', player);
+                        } else if (currentTeam === 'andy' && andyPicks.length > 0) {
+                            const player = andyPicks.shift();
+                            draftState.picks.push({ team: 'andy', player: player });
+                            markPlayerAsSelected(player);
+                            fillSlot('andy', player);
+                        }
+                        
+                        pickIndex++;
+                    }
+                    
+                    draftState.currentPick = pickIndex + 1;
+                    updateUI();
+                }
+            } catch (error) {
+                console.log('No saved picks found, starting fresh draft');
+            }
+        }
 
-            elements.undoBtn.addEventListener('click', undoLastPick);
-            elements.saveDraftBtn.addEventListener('click', saveDraft);
+        function markPlayerAsSelected(playerName) {
+            const card = document.querySelector(`[data-player="${playerName}"]`);
+            if (card) {
+                card.classList.add('selected');
+            }
+        }
+
+        function fillSlot(team, playerName) {
+            const slots = team === 'larry' ? elements.larrySlots : elements.andySlots;
+            const teamPicks = draftState.picks.filter(p => p.team === team);
+            const slotIndex = teamPicks.length - 1;
             
-            updateUI();
+            const slot = slots.children[slotIndex];
+            if (slot) {
+                slot.classList.add('filled');
+                slot.querySelector('.slot-player').textContent = playerName;
+            }
         }
 
         function draftPlayer(playerName) {
@@ -344,10 +518,12 @@
 
             const currentTeam = draftState.snakeOrder[draftState.currentPick - 1];
             
+            // Add to picks
             draftState.picks.push({ team: currentTeam, player: playerName });
             card.classList.add('selected');
             
-            addToTeamList(currentTeam, playerName, draftState.currentPick);
+            // Fill the slot
+            fillSlot(currentTeam, playerName);
             
             draftState.currentPick++;
             updateUI();
@@ -358,43 +534,32 @@
             
             const lastPick = draftState.picks.pop();
             const card = document.querySelector(`[data-player="${lastPick.player}"]`);
-            card.classList.remove('selected');
+            if (card) {
+                card.classList.remove('selected');
+            }
             
-            removeFromTeamList(lastPick.team);
+            // Unfill the slot
+            const slots = lastPick.team === 'larry' ? elements.larrySlots : elements.andySlots;
+            const teamPicks = draftState.picks.filter(p => p.team === lastPick.team);
+            const slotIndex = teamPicks.length;
+            
+            const slot = slots.children[slotIndex];
+            if (slot) {
+                slot.classList.remove('filled');
+                const isBackup = slotIndex === 14;
+                slot.querySelector('.slot-player').textContent = isBackup ? 'Backup player...' : 'Awaiting pick...';
+            }
             
             draftState.currentPick--;
             updateUI();
-        }
-
-        function addToTeamList(team, playerName, pickNum) {
-            const listEl = team === 'larry' ? elements.larryDrafted : elements.andyDrafted;
-            const li = document.createElement('li');
-            li.className = 'drafted-item';
-            
-            // Mark the 15th player (pick 29 or 30) with special badge
-            const is15thPlayer = pickNum === 29 || pickNum === 30;
-            const badge = is15thPlayer ? 
-                `<span class="pick-number" style="background: var(--gold); color: var(--dark-bg);">15th</span>` :
-                `<span class="pick-number">#${pickNum}</span>`;
-            
-            li.innerHTML = `
-                <span>${playerName}${is15thPlayer ? ' 🔄' : ''}</span>
-                ${badge}
-            `;
-            listEl.appendChild(li);
-        }
-
-        function removeFromTeamList(team) {
-            const listEl = team === 'larry' ? elements.larryDrafted : elements.andyDrafted;
-            listEl.removeChild(listEl.lastChild);
         }
 
         function updateUI() {
             // Update pick counts
             const larryCount = draftState.picks.filter(p => p.team === 'larry').length;
             const andyCount = draftState.picks.filter(p => p.team === 'andy').length;
-            elements.larryPickCount.textContent = larryCount;
-            elements.andyPickCount.textContent = andyCount;
+            elements.larryCount.textContent = larryCount;
+            elements.andyCount.textContent = andyCount;
 
             // Update pick number
             elements.pickNumber.textContent = draftState.currentPick;
@@ -402,34 +567,26 @@
             // Update turn indicator
             if (draftState.currentPick <= draftState.maxPicks) {
                 const currentTeam = draftState.snakeOrder[draftState.currentPick - 1];
-                elements.turnIndicator.textContent = currentTeam === 'larry' ? "Larry's Turn" : "Andy's Turn";
-                elements.turnIndicator.className = `turn-indicator ${currentTeam}-turn`;
+                if (currentTeam === 'larry') {
+                    elements.turnText.textContent = '🎯 LARRY IS PICKING';
+                    elements.nowPickingBanner.className = 'now-picking-banner larry-picking';
+                } else {
+                    elements.turnText.textContent = '🎯 ANDY IS PICKING';
+                    elements.nowPickingBanner.className = 'now-picking-banner andy-picking';
+                }
             } else {
-                elements.turnIndicator.textContent = "Draft Complete!";
-                elements.turnIndicator.className = "turn-indicator";
-                elements.turnIndicator.style.background = "var(--primary-green)";
+                elements.turnText.textContent = '✅ DRAFT COMPLETE';
+                elements.nowPickingBanner.className = 'now-picking-banner complete';
             }
 
-            // Update buttons - TESTING MODE: Save enabled at any time
+            // Update buttons
             elements.undoBtn.disabled = draftState.picks.length === 0;
-            // TEMPORARY FOR TESTING - allows save with partial draft
-            // TODO: Restore this line after testing: elements.saveDraftBtn.disabled = !(draftState.currentPick > draftState.maxPicks);
-            elements.saveDraftBtn.disabled = false;
-
-            // Update round visualization
-            const currentRound = Math.ceil(draftState.currentPick / 2);
-            document.querySelectorAll('.round-viz').forEach((viz, idx) => {
-                viz.classList.toggle('current', idx + 1 === currentRound);
-            });
+            elements.saveDraftBtn.disabled = !(draftState.currentPick > draftState.maxPicks);
         }
 
         function saveDraft() {
             const larryPicks = draftState.picks.filter(p => p.team === 'larry').map(p => p.player);
             const andyPicks = draftState.picks.filter(p => p.team === 'andy').map(p => p.player);
-
-            console.log('Saving draft...');
-            console.log('Larry picks:', larryPicks);
-            console.log('Andy picks:', andyPicks);
 
             // Create form and submit
             const form = document.createElement('form');
@@ -452,20 +609,27 @@
                 form.appendChild(input);
             });
 
-            // Add stakes (keep existing or default)
-            const stakesInput = document.createElement('input');
-            stakesInput.type = 'hidden';
-            stakesInput.name = 'stakes';
-            stakesInput.value = 'Bragging Rights';
-            form.appendChild(stakesInput);
-
             document.body.appendChild(form);
-            console.log('Form created, submitting...');
             form.submit();
         }
 
-        // Initialize on load
-        initDraft();
+        // Initialize
+        async function init() {
+            // Load saved picks first
+            await loadSavedPicks();
+            
+            // Add click handlers
+            elements.playerCards.forEach(card => {
+                card.addEventListener('click', () => draftPlayer(card.dataset.player));
+            });
+
+            elements.undoBtn.addEventListener('click', undoLastPick);
+            elements.saveDraftBtn.addEventListener('click', saveDraft);
+            
+            updateUI();
+        }
+
+        init();
     </script>
 </body>
 </html>
