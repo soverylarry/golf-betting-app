@@ -248,6 +248,8 @@ def history():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     """Admin panel - configure tournament settings only"""
+    global current_picks
+    
     # Load current settings
     settings = load_json(SETTINGS_FILE)
     current_stakes = settings.get('stakes', 'Bragging Rights')
@@ -258,7 +260,30 @@ def admin():
         if 'archive_week' in request.form:
             return redirect(url_for('archive_week'))
         
-        # Save settings
+        # Check if this is a draft save (coming from draft page)
+        if 'larry_picks' in request.form or 'andy_picks' in request.form:
+            larry_picks = request.form.getlist('larry_picks')
+            andy_picks = request.form.getlist('andy_picks')
+            
+            # Save the picks
+            picks_data = {
+                'larry': larry_picks,
+                'andy': andy_picks
+            }
+            save_json(PICKS_FILE, picks_data)
+            current_picks = picks_data
+            
+            # Also save stakes if provided
+            if 'stakes' in request.form:
+                new_settings = {
+                    'stakes': request.form.get('stakes', 'Bragging Rights'),
+                    'tournament_name': settings.get('tournament_name', 'The Masters Tournament')
+                }
+                save_json(SETTINGS_FILE, new_settings)
+            
+            return redirect(url_for('dashboard'))
+        
+        # Otherwise, just save settings
         new_settings = {
             'stakes': request.form.get('stakes', 'Bragging Rights'),
             'tournament_name': request.form.get('tournament_name', 'The Masters Tournament')
