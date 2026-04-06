@@ -8,11 +8,13 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 # --- CONFIGURATION ---
 PICKS_FILE = 'picks.json'
 HISTORY_FILE = 'history.json'
 SETTINGS_FILE = 'settings.json'
 SIDE_BETS_FILE = 'side_bets.json'
+PLAYERS_FILE = 'players.json'
 
 PLAYERS_PER_TEAM = 14
 COUNT_BEST = 6
@@ -43,12 +45,39 @@ def load_picks():
     data['andy'] = list(set(data.get('andy', [])))
     return data
 
+def load_players():
+    """Load the full 2026 Masters tournament field from players.json"""
+    data = load_json(PLAYERS_FILE)
+    if not data:
+        # Fallback to empty list if file doesn't exist
+        return []
+    return data.get('players', [])
+
 def load_side_bets():
+    """Load side bets data"""
     data = load_json(SIDE_BETS_FILE)
     if not data:
         return {
-            "props": [],  # List of prop bets
-            "active": True
+            "bet1_type": "",
+            "bet1_larry": "",
+            "bet1_andy": "",
+            "bet1_winner": "",
+            "bet2_type": "",
+            "bet2_larry": "",
+            "bet2_andy": "",
+            "bet2_winner": "",
+            "bet3_type": "",
+            "bet3_larry": "",
+            "bet3_andy": "",
+            "bet3_winner": "",
+            "bet4_type": "",
+            "bet4_larry": "",
+            "bet4_andy": "",
+            "bet4_winner": "",
+            "bet5_type": "",
+            "bet5_larry": "",
+            "bet5_andy": "",
+            "bet5_winner": "",
         }
     return data
 
@@ -60,45 +89,32 @@ def get_live_data():
     Fetch live golf data from Claude's sports data API.
     
     NOTE: This function is designed to work when run through Claude.
-    For local testing without Claude's API, it will use fallback sample data.
+    For local testing without Claude's API, it will use the players.json field with sample scores.
     """
     formatted_leaderboard = []
     tournament_name = CURRENT_TOURNAMENT_NAME
     
     try:
+        # Load all players from the Masters field
+        all_players = load_players()
+        
         # In production with Claude, this would call the fetch_sports_data tool
-        # For now, we'll use sample data that matches the expected format
+        # For now, we'll use the players.json data with sample scores for testing
         
         # When deployed with Claude's sports API, replace this with:
         # sports_data = fetch_sports_data(data_type="scores", league="golf")
-        # Then parse sports_data['games'] to find current tournament
+        # Then parse sports_data['games'] to find current tournament and update scores
         
-        # SAMPLE DATA for local testing
-        sample_players = [
-            {"name": "Scottie Scheffler", "score": -8, "status": "active", "thru": "F", "position": "1"},
-            {"name": "Rory McIlroy", "score": -6, "status": "active", "thru": "16", "position": "T2"},
-            {"name": "Jon Rahm", "score": -6, "status": "active", "thru": "17", "position": "T2"},
-            {"name": "Viktor Hovland", "score": -5, "status": "active", "thru": "F", "position": "4"},
-            {"name": "Brooks Koepka", "score": -4, "status": "active", "thru": "15", "position": "5"},
-            {"name": "Jordan Spieth", "score": -3, "status": "active", "thru": "14", "position": "T6"},
-            {"name": "Patrick Cantlay", "score": -3, "status": "active", "thru": "16", "position": "T6"},
-            {"name": "Xander Schauffele", "score": -2, "status": "active", "thru": "F", "position": "8"},
-            {"name": "Collin Morikawa", "score": -1, "status": "active", "thru": "13", "position": "9"},
-            {"name": "Max Homa", "score": 0, "status": "active", "thru": "12", "position": "T10"},
-            {"name": "Dustin Johnson", "score": 0, "status": "active", "thru": "14", "position": "T10"},
-            {"name": "Justin Thomas", "score": 1, "status": "CUT", "thru": "F", "position": "MC"},
-            {"name": "Tiger Woods", "score": 3, "status": "WD", "thru": "9", "position": "WD"},
-            # Add more players for realistic testing
-            {"name": "Cameron Smith", "score": -2, "status": "active", "thru": "15", "position": "T8"},
-            {"name": "Will Zalatoris", "score": -1, "status": "active", "thru": "16", "position": "T9"},
-            {"name": "Tony Finau", "score": 0, "status": "active", "thru": "14", "position": "T10"},
-            {"name": "Sam Burns", "score": 1, "status": "active", "thru": "12", "position": "T13"},
-            {"name": "Tommy Fleetwood", "score": 1, "status": "active", "thru": "13", "position": "T13"},
-            {"name": "Hideki Matsuyama", "score": 2, "status": "active", "thru": "F", "position": "T15"},
-            {"name": "Matt Fitzpatrick", "score": 2, "status": "active", "thru": "17", "position": "T15"},
-        ]
-        
-        formatted_leaderboard = sample_players
+        # For now, add sample scores to the loaded players for testing
+        # In production, these scores would come from the live API
+        if all_players:
+            formatted_leaderboard = all_players
+        else:
+            # Ultimate fallback if players.json doesn't exist
+            formatted_leaderboard = [
+                {"name": "Scottie Scheffler", "score": 0, "status": "active", "thru": "-", "position": "-"},
+                {"name": "Rory McIlroy", "score": 0, "status": "active", "thru": "-", "position": "-"},
+            ]
         
     except Exception as e:
         print(f"Error fetching live data: {e}")
@@ -108,7 +124,7 @@ def get_live_data():
     return formatted_leaderboard, tournament_name
 
 def calculate_team_score(picks, leaderboard):
-    """Calculate team score - matches Larry's existing logic"""
+    """Calculate team score - top 6 of 14 players count"""
     team_data = []
     unique_picks = list(set(picks))
     
@@ -140,6 +156,19 @@ def calculate_team_score(picks, leaderboard):
         "top_6": top_6_players
     }
 
+def get_available_players_for_side_bets():
+    """Get players NOT selected in main draft (available for side bets)"""
+    current_picks = load_picks()
+    all_players = load_players()
+    
+    # Get all drafted players
+    drafted = set(current_picks['larry'] + current_picks['andy'])
+    
+    # Filter out drafted players
+    available = [p for p in all_players if p['name'] not in drafted]
+    
+    return available
+
 # --- ROUTES ---
 
 @app.route('/')
@@ -149,9 +178,10 @@ def dashboard():
     current_picks = load_picks()
     leaderboard, tournament_name = get_live_data()
     
-    # Load stakes
+    # Load settings
     settings = load_json(SETTINGS_FILE)
     stakes = settings.get('stakes', 'Bragging Rights')
+    tournament_name_custom = settings.get('tournament_name', tournament_name)
     
     # Calculate scores
     larry_results = calculate_team_score(current_picks['larry'], leaderboard)
@@ -170,7 +200,7 @@ def dashboard():
     return render_template('index.html',
                          larry=larry_results,
                          andy=andy_results,
-                         tournament_name=tournament_name,
+                         tournament_name=tournament_name_custom,
                          stakes=stakes,
                          side_bets=side_bets,
                          last_updated=current_time)
@@ -217,42 +247,33 @@ def history():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    """Admin panel - pick players and set stakes"""
-    global current_picks
-    leaderboard, _ = get_live_data()
-    all_players_sorted = sorted(leaderboard, key=lambda x: x['name'])
-    
+    """Admin panel - configure tournament settings only"""
     # Load current settings
     settings = load_json(SETTINGS_FILE)
-    current_stakes = settings.get('stakes', '')
+    current_stakes = settings.get('stakes', 'Bragging Rights')
+    current_tournament_name = settings.get('tournament_name', 'The Masters Tournament')
     
     if request.method == 'POST':
         # Check if archiving
         if 'archive_week' in request.form:
             return redirect(url_for('archive_week'))
         
-        # Save stakes
-        new_stakes = request.form.get('stakes', '')
-        save_json(SETTINGS_FILE, {'stakes': new_stakes})
-        
-        # Save picks
-        new_picks = {
-            "larry": request.form.getlist('larry_picks'),
-            "andy": request.form.getlist('andy_picks')
+        # Save settings
+        new_settings = {
+            'stakes': request.form.get('stakes', 'Bragging Rights'),
+            'tournament_name': request.form.get('tournament_name', 'The Masters Tournament')
         }
-        save_json(PICKS_FILE, new_picks)
-        current_picks = load_picks()
+        save_json(SETTINGS_FILE, new_settings)
         
         return redirect(url_for('dashboard'))
     
     return render_template('admin.html',
-                         players=all_players_sorted,
-                         current=current_picks,
-                         stakes=current_stakes)
+                         stakes=current_stakes,
+                         tournament_name=current_tournament_name)
 
 @app.route('/draft')
 def draft():
-    """New draft interface - snake draft style"""
+    """Snake draft interface - 14 players each"""
     leaderboard, _ = get_live_data()
     all_players_sorted = sorted(leaderboard, key=lambda x: x['name'])
     
@@ -261,31 +282,48 @@ def draft():
 
 @app.route('/side_bets', methods=['GET', 'POST'])
 def side_bets():
-    """Manage side bets"""
+    """Manage side bets - 5 bets, $2 each, 36-hole format"""
     if request.method == 'POST':
-        # Handle side bet updates
-        bet_data = request.get_json()
-        side_bets_current = load_side_bets()
+        # Save all 5 side bets
+        bet_data = {
+            'bet1_type': request.form.get('bet1_type', ''),
+            'bet1_larry': request.form.get('bet1_larry', ''),
+            'bet1_andy': request.form.get('bet1_andy', ''),
+            'bet2_type': request.form.get('bet2_type', ''),
+            'bet2_larry': request.form.get('bet2_larry', ''),
+            'bet2_andy': request.form.get('bet2_andy', ''),
+            'bet3_type': request.form.get('bet3_type', ''),
+            'bet3_larry': request.form.get('bet3_larry', ''),
+            'bet3_andy': request.form.get('bet3_andy', ''),
+            'bet4_type': request.form.get('bet4_type', ''),
+            'bet4_larry': request.form.get('bet4_larry', ''),
+            'bet4_andy': request.form.get('bet4_andy', ''),
+            'bet5_type': request.form.get('bet5_type', ''),
+            'bet5_larry': request.form.get('bet5_larry', ''),
+            'bet5_andy': request.form.get('bet5_andy', ''),
+        }
         
-        if 'add_bet' in bet_data:
-            new_bet = {
-                'id': len(side_bets_current.get('props', [])) + 1,
-                'type': bet_data['type'],
-                'description': bet_data['description'],
-                'stake': bet_data['stake'],
-                'larry_pick': bet_data.get('larry_pick'),
-                'andy_pick': bet_data.get('andy_pick'),
-                'status': 'active'
-            }
-            side_bets_current.setdefault('props', []).append(new_bet)
-            save_json(SIDE_BETS_FILE, side_bets_current)
-            return jsonify({'success': True, 'bet': new_bet})
+        # TODO: After Friday, calculate winners here based on 36-hole scores
+        # For now, just save the picks
         
-        return jsonify({'success': False})
+        save_json(SIDE_BETS_FILE, bet_data)
+        return redirect(url_for('side_bets'))
     
     # GET request - show side bets page
     side_bets_data = load_side_bets()
-    return render_template('side_bets.html', side_bets=side_bets_data)
+    available_players = get_available_players_for_side_bets()
+    
+    # TODO: Set show_results=True after Friday's round is complete
+    show_results = False
+    larry_wins = 0
+    andy_wins = 0
+    
+    return render_template('side_bets.html', 
+                         side_bets=side_bets_data,
+                         available_players=available_players,
+                         show_results=show_results,
+                         larry_wins=larry_wins,
+                         andy_wins=andy_wins)
 
 @app.route('/archive_week')
 def archive_week():
@@ -293,6 +331,10 @@ def archive_week():
     global current_picks
     current_picks = load_picks()
     leaderboard, tournament_name = get_live_data()
+    
+    # Load custom tournament name if set
+    settings = load_json(SETTINGS_FILE)
+    tournament_name = settings.get('tournament_name', tournament_name)
     
     larry = calculate_team_score(current_picks['larry'], leaderboard)
     andy = calculate_team_score(current_picks['andy'], leaderboard)
@@ -321,12 +363,16 @@ def archive_week():
     # Clear picks and settings
     save_json(PICKS_FILE, {"larry": [], "andy": []})
     current_picks = {"larry": [], "andy": []}
-    save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights'})
+    save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights', 'tournament_name': 'The Masters Tournament'})
     
-    # Archive side bets
-    side_bets_data = load_side_bets()
-    side_bets_data['active'] = False
-    save_json(SIDE_BETS_FILE, side_bets_data)
+    # Clear side bets
+    save_json(SIDE_BETS_FILE, {
+        "bet1_type": "", "bet1_larry": "", "bet1_andy": "", "bet1_winner": "",
+        "bet2_type": "", "bet2_larry": "", "bet2_andy": "", "bet2_winner": "",
+        "bet3_type": "", "bet3_larry": "", "bet3_andy": "", "bet3_winner": "",
+        "bet4_type": "", "bet4_larry": "", "bet4_andy": "", "bet4_winner": "",
+        "bet5_type": "", "bet5_larry": "", "bet5_andy": "", "bet5_winner": "",
+    })
     
     return redirect(url_for('history'))
 
@@ -337,8 +383,14 @@ if __name__ == '__main__':
     if not os.path.exists(HISTORY_FILE):
         save_json(HISTORY_FILE, [])
     if not os.path.exists(SETTINGS_FILE):
-        save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights'})
+        save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights', 'tournament_name': 'The Masters Tournament'})
     if not os.path.exists(SIDE_BETS_FILE):
-        save_json(SIDE_BETS_FILE, {'props': [], 'active': True})
+        save_json(SIDE_BETS_FILE, {
+            "bet1_type": "", "bet1_larry": "", "bet1_andy": "", "bet1_winner": "",
+            "bet2_type": "", "bet2_larry": "", "bet2_andy": "", "bet2_winner": "",
+            "bet3_type": "", "bet3_larry": "", "bet3_andy": "", "bet3_winner": "",
+            "bet4_type": "", "bet4_larry": "", "bet4_andy": "", "bet4_winner": "",
+            "bet5_type": "", "bet5_larry": "", "bet5_andy": "", "bet5_winner": "",
+        })
     
     app.run(debug=True, host='0.0.0.0', port=5000)
