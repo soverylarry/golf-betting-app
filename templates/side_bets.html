@@ -124,6 +124,59 @@
             font-weight: bold;
             margin-left: 0.5rem;
         }
+        
+        .bet-type-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .bet-type-btn {
+            padding: 0.6rem 0.5rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .bet-type-btn:hover {
+            border-color: var(--primary-green);
+            background: #f0f9f0;
+        }
+        
+        .bet-type-btn.active {
+            border-color: var(--primary-green);
+            background: var(--primary-green);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .custom-bet-input {
+            display: none;
+            margin-bottom: 1rem;
+        }
+        
+        .custom-bet-input.show {
+            display: block;
+        }
+        
+        .custom-bet-input input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        .custom-bet-input input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
     </style>
 </head>
 <body>
@@ -174,18 +227,53 @@
         {% endif %}
 
         <form method="POST" action="{{ url_for('side_bets') }}">
-            <!-- Side Bet 1: Low Major -->
+            <!-- Side Bet 1 -->
             <div class="side-bet-card">
                 <div class="side-bet-header">
-                    <span class="side-bet-title">Side Bet #1: Low Major</span>
+                    <span class="side-bet-title">Side Bet #1</span>
                     <span class="side-bet-stake">$2</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem;">
-                    Pick your major champion with the lowest 36-hole score
-                    {% if side_bets.bet1_winner %}
-                        <span class="winner-badge">Winner: {{ side_bets.bet1_winner }}</span>
-                    {% endif %}
+                
+                <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.95rem;">
+                    Choose your bet type:
                 </p>
+                
+                <div class="bet-type-buttons">
+                    <button type="button" class="bet-type-btn" data-bet="1" data-value="Low Major">
+                        Low Major
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="1" data-value="Low US-Ryder">
+                        Low US-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="1" data-value="Low Euro-Ryder">
+                        Low Euro-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="1" data-value="Low Presidents">
+                        Low Presidents
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="1" data-value="Low Yet to Win a Major">
+                        Low Yet to Win
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="1" data-value="Custom">
+                        ✏️ Custom
+                    </button>
+                </div>
+                
+                <div class="custom-bet-input" id="customBet1">
+                    <input type="text" 
+                           id="customBet1Input" 
+                           placeholder="Enter custom bet name..."
+                           autocomplete="off">
+                </div>
+                
+                <input type="hidden" name="bet1_type" id="bet1_type" value="{{ side_bets.bet1_type or '' }}">
+                
+                {% if side_bets.bet1_winner %}
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        <span class="winner-badge">Winner: {{ side_bets.bet1_winner }}</span>
+                    </p>
+                {% endif %}
+                
                 <div class="picks-grid">
                     <div class="pick-section">
                         <label class="pick-label larry">Larry's Pick:</label>
@@ -214,18 +302,53 @@
                 </div>
             </div>
 
-            <!-- Side Bet 2: Low US-Ryder -->
+            <!-- Side Bet 2 -->
             <div class="side-bet-card">
                 <div class="side-bet-header">
-                    <span class="side-bet-title">Side Bet #2: Low US-Ryder</span>
+                    <span class="side-bet-title">Side Bet #2</span>
                     <span class="side-bet-stake">$2</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem;">
-                    Pick your US Ryder Cup team member with the lowest 36-hole score
-                    {% if side_bets.bet2_winner %}
-                        <span class="winner-badge">Winner: {{ side_bets.bet2_winner }}</span>
-                    {% endif %}
+                
+                <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.95rem;">
+                    Choose your bet type:
                 </p>
+                
+                <div class="bet-type-buttons">
+                    <button type="button" class="bet-type-btn" data-bet="2" data-value="Low Major">
+                        Low Major
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="2" data-value="Low US-Ryder">
+                        Low US-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="2" data-value="Low Euro-Ryder">
+                        Low Euro-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="2" data-value="Low Presidents">
+                        Low Presidents
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="2" data-value="Low Yet to Win a Major">
+                        Low Yet to Win
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="2" data-value="Custom">
+                        ✏️ Custom
+                    </button>
+                </div>
+                
+                <div class="custom-bet-input" id="customBet2">
+                    <input type="text" 
+                           id="customBet2Input" 
+                           placeholder="Enter custom bet name..."
+                           autocomplete="off">
+                </div>
+                
+                <input type="hidden" name="bet2_type" id="bet2_type" value="{{ side_bets.bet2_type or '' }}">
+                
+                {% if side_bets.bet2_winner %}
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        <span class="winner-badge">Winner: {{ side_bets.bet2_winner }}</span>
+                    </p>
+                {% endif %}
+                
                 <div class="picks-grid">
                     <div class="pick-section">
                         <label class="pick-label larry">Larry's Pick:</label>
@@ -254,18 +377,53 @@
                 </div>
             </div>
 
-            <!-- Side Bet 3: Low Euro-Ryder -->
+            <!-- Side Bet 3 -->
             <div class="side-bet-card">
                 <div class="side-bet-header">
-                    <span class="side-bet-title">Side Bet #3: Low Euro-Ryder</span>
+                    <span class="side-bet-title">Side Bet #3</span>
                     <span class="side-bet-stake">$2</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem;">
-                    Pick your European Ryder Cup team member with the lowest 36-hole score
-                    {% if side_bets.bet3_winner %}
-                        <span class="winner-badge">Winner: {{ side_bets.bet3_winner }}</span>
-                    {% endif %}
+                
+                <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.95rem;">
+                    Choose your bet type:
                 </p>
+                
+                <div class="bet-type-buttons">
+                    <button type="button" class="bet-type-btn" data-bet="3" data-value="Low Major">
+                        Low Major
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="3" data-value="Low US-Ryder">
+                        Low US-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="3" data-value="Low Euro-Ryder">
+                        Low Euro-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="3" data-value="Low Presidents">
+                        Low Presidents
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="3" data-value="Low Yet to Win a Major">
+                        Low Yet to Win
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="3" data-value="Custom">
+                        ✏️ Custom
+                    </button>
+                </div>
+                
+                <div class="custom-bet-input" id="customBet3">
+                    <input type="text" 
+                           id="customBet3Input" 
+                           placeholder="Enter custom bet name..."
+                           autocomplete="off">
+                </div>
+                
+                <input type="hidden" name="bet3_type" id="bet3_type" value="{{ side_bets.bet3_type or '' }}">
+                
+                {% if side_bets.bet3_winner %}
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        <span class="winner-badge">Winner: {{ side_bets.bet3_winner }}</span>
+                    </p>
+                {% endif %}
+                
                 <div class="picks-grid">
                     <div class="pick-section">
                         <label class="pick-label larry">Larry's Pick:</label>
@@ -294,18 +452,53 @@
                 </div>
             </div>
 
-            <!-- Side Bet 4: Low Presidents -->
+            <!-- Side Bet 4 -->
             <div class="side-bet-card">
                 <div class="side-bet-header">
-                    <span class="side-bet-title">Side Bet #4: Low Presidents</span>
+                    <span class="side-bet-title">Side Bet #4</span>
                     <span class="side-bet-stake">$2</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem;">
-                    Pick your Presidents Cup player with the lowest 36-hole score
-                    {% if side_bets.bet4_winner %}
-                        <span class="winner-badge">Winner: {{ side_bets.bet4_winner }}</span>
-                    {% endif %}
+                
+                <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.95rem;">
+                    Choose your bet type:
                 </p>
+                
+                <div class="bet-type-buttons">
+                    <button type="button" class="bet-type-btn" data-bet="4" data-value="Low Major">
+                        Low Major
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="4" data-value="Low US-Ryder">
+                        Low US-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="4" data-value="Low Euro-Ryder">
+                        Low Euro-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="4" data-value="Low Presidents">
+                        Low Presidents
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="4" data-value="Low Yet to Win a Major">
+                        Low Yet to Win
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="4" data-value="Custom">
+                        ✏️ Custom
+                    </button>
+                </div>
+                
+                <div class="custom-bet-input" id="customBet4">
+                    <input type="text" 
+                           id="customBet4Input" 
+                           placeholder="Enter custom bet name..."
+                           autocomplete="off">
+                </div>
+                
+                <input type="hidden" name="bet4_type" id="bet4_type" value="{{ side_bets.bet4_type or '' }}">
+                
+                {% if side_bets.bet4_winner %}
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        <span class="winner-badge">Winner: {{ side_bets.bet4_winner }}</span>
+                    </p>
+                {% endif %}
+                
                 <div class="picks-grid">
                     <div class="pick-section">
                         <label class="pick-label larry">Larry's Pick:</label>
@@ -334,18 +527,53 @@
                 </div>
             </div>
 
-            <!-- Side Bet 5: Low Yet to Win a Major -->
+            <!-- Side Bet 5 -->
             <div class="side-bet-card">
                 <div class="side-bet-header">
-                    <span class="side-bet-title">Side Bet #5: Low Yet to Win a Major</span>
+                    <span class="side-bet-title">Side Bet #5</span>
                     <span class="side-bet-stake">$2</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.95rem;">
-                    Pick your player without a major championship with the lowest 36-hole score
-                    {% if side_bets.bet5_winner %}
-                        <span class="winner-badge">Winner: {{ side_bets.bet5_winner }}</span>
-                    {% endif %}
+                
+                <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.95rem;">
+                    Choose your bet type:
                 </p>
+                
+                <div class="bet-type-buttons">
+                    <button type="button" class="bet-type-btn" data-bet="5" data-value="Low Major">
+                        Low Major
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="5" data-value="Low US-Ryder">
+                        Low US-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="5" data-value="Low Euro-Ryder">
+                        Low Euro-Ryder
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="5" data-value="Low Presidents">
+                        Low Presidents
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="5" data-value="Low Yet to Win a Major">
+                        Low Yet to Win
+                    </button>
+                    <button type="button" class="bet-type-btn" data-bet="5" data-value="Custom">
+                        ✏️ Custom
+                    </button>
+                </div>
+                
+                <div class="custom-bet-input" id="customBet5">
+                    <input type="text" 
+                           id="customBet5Input" 
+                           placeholder="Enter custom bet name..."
+                           autocomplete="off">
+                </div>
+                
+                <input type="hidden" name="bet5_type" id="bet5_type" value="{{ side_bets.bet5_type or '' }}">
+                
+                {% if side_bets.bet5_winner %}
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        <span class="winner-badge">Winner: {{ side_bets.bet5_winner }}</span>
+                    </p>
+                {% endif %}
+                
                 <div class="picks-grid">
                     <div class="pick-section">
                         <label class="pick-label larry">Larry's Pick:</label>
@@ -390,8 +618,65 @@
     </div>
 
     <script>
-        // Auto-save functionality could go here if desired
-        // For now, manual save button
+        // Handle bet type button selection
+        document.querySelectorAll('.bet-type-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const betNum = this.dataset.bet;
+                const value = this.dataset.value;
+                
+                // Remove active class from all buttons in this bet group
+                document.querySelectorAll(`.bet-type-btn[data-bet="${betNum}"]`).forEach(b => {
+                    b.classList.remove('active');
+                });
+                
+                // Add active to clicked button
+                this.classList.add('active');
+                
+                // Handle custom input visibility
+                const customInput = document.getElementById(`customBet${betNum}`);
+                const customTextInput = document.getElementById(`customBet${betNum}Input`);
+                const hiddenInput = document.getElementById(`bet${betNum}_type`);
+                
+                if (value === 'Custom') {
+                    customInput.classList.add('show');
+                    hiddenInput.value = customTextInput.value || '';
+                } else {
+                    customInput.classList.remove('show');
+                    hiddenInput.value = value;
+                }
+            });
+        });
+        
+        // Update hidden field when custom input changes
+        for (let i = 1; i <= 5; i++) {
+            const customInput = document.getElementById(`customBet${i}Input`);
+            if (customInput) {
+                customInput.addEventListener('input', function() {
+                    document.getElementById(`bet${i}_type`).value = this.value;
+                });
+            }
+        }
+        
+        // Initialize active states from saved values
+        for (let i = 1; i <= 5; i++) {
+            const savedType = document.getElementById(`bet${i}_type`).value;
+            if (savedType) {
+                const matchingBtn = document.querySelector(`.bet-type-btn[data-bet="${i}"][data-value="${savedType}"]`);
+                if (matchingBtn) {
+                    matchingBtn.classList.add('active');
+                } else {
+                    // It's a custom value
+                    const customBtn = document.querySelector(`.bet-type-btn[data-bet="${i}"][data-value="Custom"]`);
+                    if (customBtn) {
+                        customBtn.classList.add('active');
+                        document.getElementById(`customBet${i}`).classList.add('show');
+                        document.getElementById(`customBet${i}Input`).value = savedType;
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>
