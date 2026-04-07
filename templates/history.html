@@ -5,13 +5,273 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tournament History | Larry vs Andy Golf</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .history-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .history-header h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3rem;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: 2px;
+        }
+
+        /* SEASON LEADERBOARD - Top Banner */
+        .season-leaderboard {
+            background: linear-gradient(135deg, var(--primary-green) 0%, #134d3a 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border: 3px solid var(--gold);
+        }
+
+        .season-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            color: var(--gold);
+            margin: 0 0 1.5rem 0;
+            text-align: center;
+        }
+
+        .season-standings {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .leader-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .leader-card.winning {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .leader-name {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .leader-wins {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .season-margin {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            color: var(--dark-bg);
+        }
+
+        .margin-number {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 4rem;
+            margin: 0;
+            color: var(--primary-green);
+        }
+
+        .margin-label {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* MAJOR CHAMPIONSHIP CARDS - Monopoly Style */
+        .majors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .major-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 3px solid #ddd;
+        }
+
+        .major-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Color bar at top - like Monopoly property */
+        .major-header {
+            padding: 1.5rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .major-card.masters .major-header {
+            background: linear-gradient(135deg, #006747 0%, #134d3a 100%);
+        }
+
+        .major-card.pga .major-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .major-card.usopen .major-header {
+            background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);
+        }
+
+        .major-card.theopen .major-header {
+            background: linear-gradient(135deg, #7e22ce 0%, #a855f7 100%);
+        }
+
+        .major-logo {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .major-name {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .major-date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        /* Card body */
+        .major-body {
+            padding: 1.5rem;
+            background: white;
+            color: var(--dark-bg);
+        }
+
+        .winner-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .winner-trophy {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-name {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin: 0 0 0.25rem 0;
+        }
+
+        .winner-margin {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Scores section */
+        .scores-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .score-box {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .score-box.winner-box {
+            background: #d1fae5;
+            border: 2px solid var(--primary-green);
+        }
+
+        .player-name-small {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .player-score {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            color: var(--dark-bg);
+        }
+
+        /* Empty state */
+        .no-tournaments {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .no-tournaments-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-tournaments h3 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem;
+            margin: 0 0 0.5rem 0;
+            opacity: 0.7;
+        }
+
+        .no-tournaments p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .season-standings {
+                grid-template-columns: 1fr;
+            }
+
+            .majors-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🏆 Tournament History</h1>
-            <p class="tournament-name">Larry vs Andy Golf Betting</p>
-        </header>
+        <div class="history-header">
+            <h1>🏆 MAJOR CHAMPIONSHIP HISTORY</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">2026 Season - The Battle for Major Supremacy</p>
+        </div>
 
         <nav>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
@@ -20,61 +280,91 @@
             <a href="{{ url_for('admin') }}">Admin</a>
         </nav>
 
-        <div class="history-header">
-            <div class="win-stats">
-                <div class="stat-card">
-                    <div class="stat-number" style="color: var(--primary-blue);">{{ larry_wins }}</div>
-                    <div class="stat-label">Larry Wins</div>
+        {% if history and history|length > 0 %}
+        <!-- SEASON LEADERBOARD -->
+        <div class="season-leaderboard">
+            <h2 class="season-title">⛳ 2026 SEASON STANDINGS</h2>
+            <div class="season-standings">
+                <div class="leader-card {% if larry_season_strokes > andy_season_strokes %}winning{% endif %}">
+                    <div class="leader-name" style="color: var(--primary-blue);">🎯 LARRY</div>
+                    <div class="leader-wins">{{ larry_wins }} Major{{ 's' if larry_wins != 1 else '' }} Won</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" style="color: var(--primary-red);">{{ andy_wins }}</div>
-                    <div class="stat-label">Andy Wins</div>
+
+                <div class="season-margin">
+                    {% if larry_season_strokes == andy_season_strokes %}
+                        <div class="margin-number" style="color: var(--gold);">TIED</div>
+                        <div class="margin-label">All Square</div>
+                    {% elif larry_season_strokes > andy_season_strokes %}
+                        <div class="margin-number">+{{ larry_season_strokes - andy_season_strokes }}</div>
+                        <div class="margin-label">Larry Leads</div>
+                    {% else %}
+                        <div class="margin-number">+{{ andy_season_strokes - larry_season_strokes }}</div>
+                        <div class="margin-label">Andy Leads</div>
+                    {% endif %}
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" style="color: var(--gold);">{{ ties }}</div>
-                    <div class="stat-label">Ties</div>
+
+                <div class="leader-card {% if andy_season_strokes > larry_season_strokes %}winning{% endif %}">
+                    <div class="leader-name" style="color: var(--primary-red);">🎯 ANDY</div>
+                    <div class="leader-wins">{{ andy_wins }} Major{{ 's' if andy_wins != 1 else '' }} Won</div>
                 </div>
             </div>
         </div>
 
-        <div class="history-list">
-            {% if history %}
-                {% for item in history %}
-                <div class="history-item {% if item.winner == 'Andy' %}andy-win{% elif item.winner == 'Tie' %}tie{% endif %}">
-                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
-                        <div>
-                            <h3 style="margin-bottom: 0.5rem;">{{ item.tournament }}</h3>
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ item.date }}</p>
+        <!-- MAJOR CHAMPIONSHIP CARDS -->
+        <div class="majors-grid">
+            {% for tournament in history %}
+            <div class="major-card {{ tournament.major_type }}">
+                <!-- Header with color bar -->
+                <div class="major-header">
+                    <div class="major-logo">
+                        {% if tournament.major_type == 'masters' %}🌸
+                        {% elif tournament.major_type == 'pga' %}⛳
+                        {% elif tournament.major_type == 'usopen' %}🦅
+                        {% elif tournament.major_type == 'theopen' %}🏆
+                        {% else %}🏌️{% endif %}
+                    </div>
+                    <h3 class="major-name">{{ tournament.tournament }}</h3>
+                    <div class="major-date">{{ tournament.date }}</div>
+                </div>
+
+                <!-- Body -->
+                <div class="major-body">
+                    <!-- Winner Section -->
+                    <div class="winner-section">
+                        <div class="winner-trophy">🏆</div>
+                        <div class="winner-name">{{ tournament.winner }}</div>
+                        <div class="winner-margin">
+                            Won by {{ tournament.margin }} stroke{{ 's' if tournament.margin != 1 else '' }}
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 1.5rem; font-weight: bold;">
-                                {% if item.winner == 'Larry' %}
-                                    🏆 Larry Wins!
-                                {% elif item.winner == 'Andy' %}
-                                    🏆 Andy Wins!
-                                {% else %}
-                                    🤝 Tie!
-                                {% endif %}
-                            </div>
-                            <div style="margin-top: 0.5rem; color: var(--text-muted);">
-                                Larry: {{ item.larry_score }} | Andy: {{ item.andy_score }}
-                            </div>
+                    </div>
+
+                    <!-- Scores -->
+                    <div class="scores-grid">
+                        <div class="score-box {% if tournament.winner == 'Larry' %}winner-box{% endif %}">
+                            <div class="player-name-small">LARRY</div>
+                            <div class="player-score">{{ tournament.larry_score }}</div>
+                        </div>
+                        <div class="score-box {% if tournament.winner == 'Andy' %}winner-box{% endif %}">
+                            <div class="player-name-small">ANDY</div>
+                            <div class="player-score">{{ tournament.andy_score }}</div>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <div class="history-item">
-                    <p style="text-align: center; color: var(--text-muted);">
-                        No tournament history yet. Complete your first tournament to see it here!
-                    </p>
-                </div>
-            {% endif %}
+            </div>
+            {% endfor %}
         </div>
 
-        <div style="margin-top: 2rem; text-align: center;">
-            <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Back to Dashboard</a>
+        {% else %}
+        <!-- EMPTY STATE -->
+        <div class="no-tournaments">
+            <div class="no-tournaments-icon">🏌️</div>
+            <h3>No Tournaments Yet</h3>
+            <p>The 2026 Major Championship season starts with The Masters on Thursday!</p>
+            <p style="margin-top: 1rem; font-size: 0.95rem; color: var(--gold);">
+                <strong>Season Schedule:</strong> Masters → PGA Championship → U.S. Open → The Open
+            </p>
         </div>
+        {% endif %}
     </div>
 </body>
 </html>
