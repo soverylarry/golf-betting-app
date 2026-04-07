@@ -230,7 +230,7 @@ def api_refresh():
 
 @app.route('/history')
 def history():
-    """Tournament history page"""
+    """Tournament history page with season tracking"""
     history_data = load_json(HISTORY_FILE)
     if not isinstance(history_data, list):
         history_data = []
@@ -239,11 +239,28 @@ def history():
     andy_wins = sum(1 for h in history_data if h['winner'] == 'Andy')
     ties = sum(1 for h in history_data if h['winner'] == 'Tie')
     
+    # Calculate season stroke differential
+    larry_season_strokes = 0
+    andy_season_strokes = 0
+    
+    for tournament in history_data:
+        # Add stroke advantage to running totals
+        # Lower score wins in golf, so we track who has accumulated more winning strokes
+        larry_diff = tournament.get('andy_score', 0) - tournament.get('larry_score', 0)
+        andy_diff = tournament.get('larry_score', 0) - tournament.get('andy_score', 0)
+        
+        if larry_diff > 0:  # Larry won
+            larry_season_strokes += larry_diff
+        elif andy_diff > 0:  # Andy won
+            andy_season_strokes += andy_diff
+    
     return render_template('history.html',
                          history=history_data,
                          larry_wins=larry_wins,
                          andy_wins=andy_wins,
-                         ties=ties)
+                         ties=ties,
+                         larry_season_strokes=larry_season_strokes,
+                         andy_season_strokes=andy_season_strokes)
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -364,19 +381,38 @@ def archive_week():
     larry = calculate_team_score(current_picks['larry'], leaderboard)
     andy = calculate_team_score(current_picks['andy'], leaderboard)
     
+    # Determine winner and margin
     if larry['total'] < andy['total']:
         winner = "Larry"
+        margin = andy['total'] - larry['total']
     elif andy['total'] < larry['total']:
         winner = "Andy"
+        margin = larry['total'] - andy['total']
     else:
         winner = "Tie"
+        margin = 0
+    
+    # Determine major championship type from tournament name
+    tournament_lower = tournament_name.lower()
+    if 'masters' in tournament_lower:
+        major_type = 'masters'
+    elif 'pga' in tournament_lower:
+        major_type = 'pga'
+    elif 'u.s. open' in tournament_lower or 'us open' in tournament_lower:
+        major_type = 'usopen'
+    elif 'open championship' in tournament_lower or 'british open' in tournament_lower or tournament_lower == 'the open':
+        major_type = 'theopen'
+    else:
+        major_type = 'other'
     
     new_record = {
         "date": datetime.now().strftime("%Y-%m-%d"),
         "tournament": tournament_name,
+        "major_type": major_type,
         "larry_score": larry['total'],
         "andy_score": andy['total'],
-        "winner": winner
+        "winner": winner,
+        "margin": margin
     }
     
     history_data = load_json(HISTORY_FILE)
