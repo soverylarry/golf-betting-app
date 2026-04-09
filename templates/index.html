@@ -13,7 +13,6 @@
             <p class="tournament-name">{{ tournament_name }}</p>
             <p class="stakes">Stakes: {{ stakes }}</p>
         </header>
-
         <nav>
             <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
             <a href="{{ url_for('history') }}">History</a>
@@ -21,109 +20,78 @@
             <a href="{{ url_for('admin') }}">Admin</a>
         </nav>
 
-        <!-- Scores Section -->
-        <div class="scores-container">
+        <!-- Scoreboard -->
+        <div class="scoreboard">
+
             <!-- Larry's Team -->
-            <div class="team-card larry-card">
-                <h2>🎯 Larry's Team</h2>
-                <div class="team-score">
-                    <span class="score-label">Total Score:</span>
-                    <span class="score-value {% if larry.total < andy.total %}winning{% elif larry.total > andy.total %}losing{% else %}tied{% endif %}">
-                        {{ larry.total }}
-                    </span>
+            <div class="team-card">
+                <h2>🎯 Larry</h2>
+                <div class="total-score {% if larry.total < andy.total %}winning{% elif larry.total > andy.total %}losing{% else %}tied{% endif %}">
+                    {% if larry.total == 0 %}E{% elif larry.total < 0 %}{{ larry.total }}{% else %}+{{ larry.total }}{% endif %}
                 </div>
-                
-                <h3 style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-muted);">
-                    Top 6 Counting (of 14 picked)
-                </h3>
-                <div class="player-list">
-                    {% for player in larry.top_6 %}
-                    <div class="player-item">
+                <div class="score-label">TOP 6 TOTAL &nbsp;·&nbsp; BEST 6 OF 14 COUNT</div>
+
+                <div class="players-list">
+                    <h3>Roster — Top 6 Counting</h3>
+                    {% for player in larry.all_players %}
+                    <div class="player-row {% if player.counting %}counting{% else %}bench{% endif %}">
                         <span class="player-name">{{ player.name }}</span>
-                        <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
-                            {{ player.score }}
+                        <span class="player-score">
+                            {% if player.score == 0 %}E{% elif player.score < 0 %}{{ player.score }}{% else %}+{{ player.score }}{% endif %}
                         </span>
                         <span class="player-status">{{ player.thru }}</span>
                     </div>
                     {% endfor %}
-                </div>
 
-                <details style="margin-top: 1rem;">
-                    <summary style="cursor: pointer; color: var(--text-muted); font-size: 0.9rem;">
-                        Show All 14 Players
-                    </summary>
-                    <div class="player-list" style="margin-top: 0.5rem;">
-                        {% for player in larry.all_players %}
-                        <div class="player-item">
-                            <span class="player-name">{{ player.name }}</span>
-                            <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
-                                {{ player.score }}
-                            </span>
-                            <span class="player-status">{{ player.thru }}</span>
-                        </div>
-                        {% endfor %}
+                    {% if larry.backup %}
+                    <div class="player-row backup-player">
+                        <span class="player-name">
+                            {{ larry.backup.name }}<span class="backup-badge">15TH ↩</span>
+                        </span>
+                        <span class="player-score">
+                            {% if larry.backup.score == 0 %}E{% elif larry.backup.score < 0 %}{{ larry.backup.score }}{% else %}+{{ larry.backup.score }}{% endif %}
+                        </span>
+                        <span class="player-status">{{ larry.backup.thru }}</span>
                     </div>
-                </details>
+                    {% endif %}
+                </div>
             </div>
 
             <!-- Andy's Team -->
-            <div class="team-card andy-card">
-                <h2>🎯 Andy's Team</h2>
-                <div class="team-score">
-                    <span class="score-label">Total Score:</span>
-                    <span class="score-value {% if andy.total < larry.total %}winning{% elif andy.total > larry.total %}losing{% else %}tied{% endif %}">
-                        {{ andy.total }}
-                    </span>
+            <div class="team-card">
+                <h2>🎯 Andy</h2>
+                <div class="total-score {% if andy.total < larry.total %}winning{% elif andy.total > larry.total %}losing{% else %}tied{% endif %}">
+                    {% if andy.total == 0 %}E{% elif andy.total < 0 %}{{ andy.total }}{% else %}+{{ andy.total }}{% endif %}
                 </div>
-                
-                <h3 style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-muted);">
-                    Top 6 Counting (of 14 picked)
-                </h3>
-                <div class="player-list">
-                    {% for player in andy.top_6 %}
-                    <div class="player-item">
+                <div class="score-label">TOP 6 TOTAL &nbsp;·&nbsp; BEST 6 OF 14 COUNT</div>
+
+                <div class="players-list">
+                    <h3>Roster — Top 6 Counting</h3>
+                    {% for player in andy.all_players %}
+                    <div class="player-row {% if player.counting %}counting{% else %}bench{% endif %}">
                         <span class="player-name">{{ player.name }}</span>
-                        <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
-                            {{ player.score }}
+                        <span class="player-score">
+                            {% if player.score == 0 %}E{% elif player.score < 0 %}{{ player.score }}{% else %}+{{ player.score }}{% endif %}
                         </span>
                         <span class="player-status">{{ player.thru }}</span>
                     </div>
                     {% endfor %}
-                </div>
 
-                <details style="margin-top: 1rem;">
-                    <summary style="cursor: pointer; color: var(--text-muted); font-size: 0.9rem;">
-                        Show All 14 Players
-                    </summary>
-                    <div class="player-list" style="margin-top: 0.5rem;">
-                        {% for player in andy.all_players %}
-                        <div class="player-item">
-                            <span class="player-name">{{ player.name }}</span>
-                            <span class="player-score {% if player.score|int < 0 %}under-par{% elif player.score|int > 0 %}over-par{% endif %}">
-                                {{ player.score }}
-                            </span>
-                            <span class="player-status">{{ player.thru }}</span>
-                        </div>
-                        {% endfor %}
+                    {% if andy.backup %}
+                    <div class="player-row backup-player">
+                        <span class="player-name">
+                            {{ andy.backup.name }}<span class="backup-badge">15TH ↩</span>
+                        </span>
+                        <span class="player-score">
+                            {% if andy.backup.score == 0 %}E{% elif andy.backup.score < 0 %}{{ andy.backup.score }}{% else %}+{{ andy.backup.score }}{% endif %}
+                        </span>
+                        <span class="player-status">{{ andy.backup.thru }}</span>
                     </div>
-                </details>
-            </div>
-        </div>
-
-        <!-- Side Bets Section -->
-        {% if side_bets.props and side_bets.active %}
-        <div class="admin-section">
-            <h2>🎲 Active Side Bets</h2>
-            <div class="side-bets-list">
-                {% for bet in side_bets.props %}
-                <div class="side-bet-item">
-                    <strong>{{ bet.description }}</strong>
-                    <span class="bet-stake">{{ bet.stake }}</span>
+                    {% endif %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
-        {% endif %}
+
+        </div><!-- end .scoreboard -->
 
         <!-- Last Updated -->
         <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
@@ -136,34 +104,22 @@
     </div>
 
     <script>
-        // Auto-refresh every 60 seconds
         let refreshInterval;
-
         function startAutoRefresh() {
             refreshInterval = setInterval(() => {
                 fetch('/api/refresh')
                     .then(response => response.json())
                     .then(data => {
-                        // Update last updated time
                         document.getElementById('lastUpdated').textContent = data.last_updated;
-                        
-                        // You could update scores dynamically here
-                        // For now, we'll just reload the page to get fresh data
                         window.location.reload();
                     })
                     .catch(error => console.error('Auto-refresh error:', error));
-            }, 60000); // 60 seconds
+            }, 60000);
         }
-
-        // Manual refresh button
         document.getElementById('refreshBtn').addEventListener('click', () => {
             window.location.reload();
         });
-
-        // Start auto-refresh on page load
         startAutoRefresh();
-
-        // Stop auto-refresh when page is hidden
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 clearInterval(refreshInterval);
