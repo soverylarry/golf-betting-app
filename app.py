@@ -36,7 +36,7 @@ HARDCODED_LARRY_BACKUP = "Max Homa"
 HARDCODED_ANDY_PICKS = [
     "Rory McIlroy", "Scottie Scheffler", "Brooks Koepka", "Justin Rose",
     "Tommy Fleetwood", "Viktor Hovland", "Nicolai Hojgaard", "Rasmus Hojgaard",
-    "Patrick Cantlay", "Robert McIntyre", "Jordan Spieth", "Keegan Bradley",
+    "Patrick Cantlay", "Robert MacIntyre", "Jordan Spieth", "Keegan Bradley",
     "Jason Day", "Harris English"
 ]
 HARDCODED_ANDY_BACKUP = "Chris Gotterup"
