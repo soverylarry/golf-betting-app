@@ -378,7 +378,17 @@ def api_debug():
     """
     results = {}
  
-    # Test masters.com
+    # Expose raw masters.com JSON for first 2 players so we can see exact field names
+    try:
+        url = "https://www.masters.com/en_US/scores/feeds/2026/scores.json"
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        raw_data = resp.json()
+        raw_players = raw_data.get("data", {}).get("player", [])
+        results["masters_com_raw_fields"] = raw_players[:2]  # show full raw dict for first 2 players
+    except Exception as e:
+        results["masters_com_raw_fields"] = {"error": str(e)}
+ 
+    # Test masters.com (parsed)
     try:
         lb, name = _fetch_masters_dot_com()
         results["masters_com"] = {
