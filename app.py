@@ -228,10 +228,16 @@ def get_live_data():
 def normalize_name(name):
     """
     Normalize a player name for fuzzy matching.
-    Strips accents (Åberg → Aberg, Højgaard → Hojgaard) and lowercases.
-    This lets us match ESPN's accented names against our ASCII pick list.
+    Handles two types of special characters:
+      1. Composed chars that decompose via NFKD (Å→A, É→E, etc.)
+      2. Standalone Nordic/special letters that don't decompose (ø→o, æ→ae, ß→ss)
+    This lets us match API names like 'Højgaard' against our ASCII picks 'Hojgaard'.
     """
-    nfkd = unicodedata.normalize('NFKD', str(name))
+    # Manual replacements for chars that NFKD won't decompose
+    _manual = str.maketrans({'ø': 'o', 'Ø': 'o', 'æ': 'ae', 'Æ': 'ae',
+                              'ð': 'd', 'Ð': 'd', 'þ': 'th', 'Þ': 'th', 'ß': 'ss'})
+    name = str(name).translate(_manual)
+    nfkd = unicodedata.normalize('NFKD', name)
     return ''.join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
  
 def parse_score(score_val):
