@@ -82,79 +82,148 @@ def load_side_bets():
 current_picks = load_picks()
  
 # --- LIVE DATA FETCHING ---
+ 
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; GolfBettingApp/1.0)"}
+ 
+def _fetch_masters_dot_com():
+    """
+    Try Augusta National's official JSON score feed.
+    Returns (leaderboard_list, tournament_name) or raises on failure.
+    """
+    url = "https://www.masters.com/en_US/scores/feeds/2026/scores.json"
+    resp = requests.get(url, headers=HEADERS, timeout=10)
+    resp.raise_for_status()
+    data = resp.json()
+ 
+    players = data.get("data", {}).get("player", [])
+    if not players:
+        raise ValueError("masters.com: empty player list")
+ 
+    leaderboard = []
+    for p in players:
+        first = p.get("first_name", "")
+        last  = p.get("last_name", "")
+        name  = f"{first} {last}".strip()
+ 
+        raw = p.get("total", "E")
+        if raw in ("E", "even", "", None):
+            score = 0
+        else:
+            try:
+                score = int(str(raw).replace("+", ""))
+            except ValueError:
+                score = 0
+ 
+        thru = p.get("thru", "-") or "-"
+        pos  = p.get("pos", "-")
+ 
+        leaderboard.append({
+            "name":     name,
+            "score":    score,
+            "status":   "active",
+            "thru":     str(thru),
+            "position": str(pos),
+        })
+ 
+    print(f"masters.com: loaded {len(leaderboard)} players")
+    return leaderboard, CURRENT_TOURNAMENT_NAME
+ 
+ 
+def _fetch_espn():
+    """
+    Try ESPN's undocumented public golf scoreboard API.
+    Returns (leaderboard_list, tournament_name) or raises on failure.
+    """
+    # Try both known ESPN golf endpoint formats
+    urls = [
+        "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard",
+        "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard",
+    ]
+ 
+    data = None
+    used_url = None
+    for url in urls:
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+            used_url = url
+            break
+        except Exception as e:
+            print(f"ESPN endpoint {url} failed: {e}")
+ 
+    if not data:
+        raise ValueError("All ESPN endpoints failed")
+ 
+    events = data.get("events", [])
+    target = None
+    for event in events:
+        name = event.get("name", "").lower()
+        if "masters" in name or "augusta" in name:
+            target = event
+            break
+    if not target and events:
+        target = events[0]
+    if not target:
+        raise ValueError("ESPN: no events in response")
+ 
+    tournament_name = target.get("name", CURRENT_TOURNAMENT_NAME)
+    leaderboard = []
+    competitions = target.get("competitions", [])
+    if competitions:
+        for comp in competitions[0].get("competitors", []):
+            athlete   = comp.get("athlete", {})
+            full_name = athlete.get("displayName", "")
+ 
+            raw_score = comp.get("score", "E")
+            if raw_score in ("E", "even", "", None):
+                score = 0
+            else:
+                try:
+                    score = int(str(raw_score).replace("+", ""))
+                except ValueError:
+                    score = 0
+ 
+            status_obj = comp.get("status", {})
+            thru = status_obj.get("type", {}).get("shortDetail", "-")
+ 
+            leaderboard.append({
+                "name":     full_name,
+                "score":    score,
+                "status":   "active",
+                "thru":     thru,
+                "position": str(comp.get("place", "-")),
+            })
+ 
+    print(f"ESPN ({used_url}): loaded {len(leaderboard)} players for '{tournament_name}'")
+    if not leaderboard:
+        raise ValueError("ESPN: empty competitor list")
+    return leaderboard, tournament_name
+ 
+ 
 def get_live_data():
     """
-    Fetch live leaderboard from ESPN's public golf API (no API key required).
-    Searches active events for the Masters; falls back to players.json if unavailable.
+    Fetch live leaderboard. Tries sources in order:
+      1. masters.com official JSON feed
+      2. ESPN public API (two endpoint variants)
+      3. Static players.json fallback
     """
-    tournament_name = CURRENT_TOURNAMENT_NAME
+    sources = [
+        ("masters.com", _fetch_masters_dot_com),
+        ("ESPN",        _fetch_espn),
+    ]
+    for name, fn in sources:
+        try:
+            leaderboard, tournament_name = fn()
+            if leaderboard:
+                return leaderboard, tournament_name
+        except Exception as e:
+            print(f"[get_live_data] {name} failed: {e}")
  
-    try:
-        url = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard"
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; GolfBettingApp/1.0)"}
-        resp = requests.get(url, headers=headers, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
- 
-        events = data.get("events", [])
- 
-        # Find the Masters tournament; fall back to first active event
-        target = None
-        for event in events:
-            name = event.get("name", "").lower()
-            if "masters" in name or "augusta" in name:
-                target = event
-                break
-        if not target and events:
-            target = events[0]
- 
-        if not target:
-            raise ValueError("No golf events found in ESPN API response")
- 
-        tournament_name = target.get("name", CURRENT_TOURNAMENT_NAME)
- 
-        leaderboard = []
-        competitions = target.get("competitions", [])
-        if competitions:
-            for comp in competitions[0].get("competitors", []):
-                athlete  = comp.get("athlete", {})
-                full_name = athlete.get("displayName", "")
- 
-                # Parse score: ESPN returns strings like "-5", "E", "+2"
-                raw_score = comp.get("score", "E")
-                if raw_score in ("E", "even", "", None):
-                    score = 0
-                else:
-                    try:
-                        score = int(str(raw_score).replace("+", ""))
-                    except ValueError:
-                        score = 0
- 
-                # Thru / round status
-                status_obj = comp.get("status", {})
-                thru = status_obj.get("type", {}).get("shortDetail", "-")
- 
-                leaderboard.append({
-                    "name":     full_name,
-                    "score":    score,
-                    "status":   "active",
-                    "thru":     thru,
-                    "position": str(comp.get("place", "-")),
-                })
- 
-        print(f"ESPN API: loaded {len(leaderboard)} players for '{tournament_name}'")
- 
-        if leaderboard:
-            return leaderboard, tournament_name
- 
-        raise ValueError("ESPN returned an empty competitor list")
- 
-    except Exception as e:
-        print(f"ESPN API unavailable ({e}). Falling back to players.json.")
- 
-    # --- Fallback: static players.json (scores show as E until API recovers) ---
+    # Final fallback — static data, all scores will be 0/E
+    print("[get_live_data] All live sources failed. Using players.json fallback.")
     all_players = load_players()
-    return (all_players if all_players else [], tournament_name)
+    return (all_players if all_players else []), CURRENT_TOURNAMENT_NAME
  
 def normalize_name(name):
     """
@@ -300,6 +369,58 @@ def api_refresh():
         'tournament_name': tournament_name,
         'last_updated': current_time
     })
+ 
+@app.route('/api/debug')
+def api_debug():
+    """
+    Diagnostic endpoint — visit /api/debug in your browser to see exactly
+    what each data source returns. Useful for troubleshooting live scoring.
+    """
+    results = {}
+ 
+    # Test masters.com
+    try:
+        lb, name = _fetch_masters_dot_com()
+        results["masters_com"] = {
+            "status": "OK",
+            "player_count": len(lb),
+            "sample": lb[:3],
+        }
+    except Exception as e:
+        results["masters_com"] = {"status": "FAILED", "error": str(e)}
+ 
+    # Test ESPN
+    try:
+        lb, name = _fetch_espn()
+        results["espn"] = {
+            "status": "OK",
+            "player_count": len(lb),
+            "sample": lb[:3],
+        }
+    except Exception as e:
+        results["espn"] = {"status": "FAILED", "error": str(e)}
+ 
+    # Show what get_live_data() actually used
+    try:
+        lb, name = get_live_data()
+        results["get_live_data"] = {
+            "status": "OK",
+            "source_used": name,
+            "player_count": len(lb),
+            "sample": lb[:5],
+        }
+    except Exception as e:
+        results["get_live_data"] = {"status": "FAILED", "error": str(e)}
+ 
+    # Check whether our picks are matching anything
+    lb, _ = get_live_data()
+    pick_check = {}
+    for pick in HARDCODED_LARRY_PICKS[:3] + HARDCODED_ANDY_PICKS[:3]:
+        match = next((p for p in lb if normalize_name(p["name"]) == normalize_name(pick)), None)
+        pick_check[pick] = match["name"] if match else "NO MATCH"
+    results["pick_name_matching"] = pick_check
+ 
+    return jsonify(results)
  
 @app.route('/history')
 def history():
