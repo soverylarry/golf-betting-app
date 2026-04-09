@@ -1,7 +1,9 @@
 import json
 import os
+import unicodedata
 from datetime import datetime
 import pytz
+import requests
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -82,26 +84,86 @@ current_picks = load_picks()
 # --- LIVE DATA FETCHING ---
 def get_live_data():
     """
-    Fetch live golf data from Claude's sports data API.
-    For local testing without Claude's API, uses players.json field with sample scores.
+    Fetch live leaderboard from ESPN's public golf API (no API key required).
+    Searches active events for the Masters; falls back to players.json if unavailable.
     """
-    formatted_leaderboard = []
     tournament_name = CURRENT_TOURNAMENT_NAME
  
     try:
-        all_players = load_players()
-        if all_players:
-            formatted_leaderboard = all_players
-        else:
-            formatted_leaderboard = [
-                {"name": "Scottie Scheffler", "score": 0, "status": "active", "thru": "-", "position": "-"},
-                {"name": "Rory McIlroy", "score": 0, "status": "active", "thru": "-", "position": "-"},
-            ]
-    except Exception as e:
-        print(f"Error fetching live data: {e}")
-        formatted_leaderboard = []
+        url = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard"
+        headers = {"User-Agent": "Mozilla/5.0 (compatible; GolfBettingApp/1.0)"}
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
  
-    return formatted_leaderboard, tournament_name
+        events = data.get("events", [])
+ 
+        # Find the Masters tournament; fall back to first active event
+        target = None
+        for event in events:
+            name = event.get("name", "").lower()
+            if "masters" in name or "augusta" in name:
+                target = event
+                break
+        if not target and events:
+            target = events[0]
+ 
+        if not target:
+            raise ValueError("No golf events found in ESPN API response")
+ 
+        tournament_name = target.get("name", CURRENT_TOURNAMENT_NAME)
+ 
+        leaderboard = []
+        competitions = target.get("competitions", [])
+        if competitions:
+            for comp in competitions[0].get("competitors", []):
+                athlete  = comp.get("athlete", {})
+                full_name = athlete.get("displayName", "")
+ 
+                # Parse score: ESPN returns strings like "-5", "E", "+2"
+                raw_score = comp.get("score", "E")
+                if raw_score in ("E", "even", "", None):
+                    score = 0
+                else:
+                    try:
+                        score = int(str(raw_score).replace("+", ""))
+                    except ValueError:
+                        score = 0
+ 
+                # Thru / round status
+                status_obj = comp.get("status", {})
+                thru = status_obj.get("type", {}).get("shortDetail", "-")
+ 
+                leaderboard.append({
+                    "name":     full_name,
+                    "score":    score,
+                    "status":   "active",
+                    "thru":     thru,
+                    "position": str(comp.get("place", "-")),
+                })
+ 
+        print(f"ESPN API: loaded {len(leaderboard)} players for '{tournament_name}'")
+ 
+        if leaderboard:
+            return leaderboard, tournament_name
+ 
+        raise ValueError("ESPN returned an empty competitor list")
+ 
+    except Exception as e:
+        print(f"ESPN API unavailable ({e}). Falling back to players.json.")
+ 
+    # --- Fallback: static players.json (scores show as E until API recovers) ---
+    all_players = load_players()
+    return (all_players if all_players else [], tournament_name)
+ 
+def normalize_name(name):
+    """
+    Normalize a player name for fuzzy matching.
+    Strips accents (Åberg → Aberg, Højgaard → Hojgaard) and lowercases.
+    This lets us match ESPN's accented names against our ASCII pick list.
+    """
+    nfkd = unicodedata.normalize('NFKD', str(name))
+    return ''.join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
  
 def parse_score(score_val):
     """Parse a golf score value to integer for sorting/summing."""
@@ -128,8 +190,11 @@ def calculate_team_score(picks, leaderboard, backup=None):
     """
     team_data = []
     for player_name in picks:
+        # Use normalize_name() so accented API names (Åberg, Højgaard) match
+        # our ASCII pick strings (Aberg, Hojgaard)
         player_stats = next(
-            (p for p in leaderboard if p["name"].lower() == player_name.lower()),
+            (p for p in leaderboard
+             if normalize_name(p["name"]) == normalize_name(player_name)),
             None
         )
         if player_stats:
@@ -156,7 +221,8 @@ def calculate_team_score(picks, leaderboard, backup=None):
     backup_data = None
     if backup:
         backup_stats = next(
-            (p for p in leaderboard if p["name"].lower() == backup.lower()),
+            (p for p in leaderboard
+             if normalize_name(p["name"]) == normalize_name(backup)),
             None
         )
         if backup_stats:
