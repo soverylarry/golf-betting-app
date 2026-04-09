@@ -27,8 +27,8 @@ CURRENT_TOURNAMENT_NAME = "Masters Tournament"
 # player withdraws after the 36-hole cut).
 HARDCODED_LARRY_PICKS = [
     "Jon Rahm", "Ludvig Aberg", "Xander Schauffele", "Bryson DeChambeau",
-    "Cameron Young", "Matthew Fitzpatrick", "Akshay Bhatia", "Min Woo Lee",
-    "Corey Connors", "Hideki Matsuyama", "Si Woo Kim", "Shane Lowry",
+    "Cameron Young", "Matt Fitzpatrick", "Akshay Bhatia", "Min Woo Lee",
+    "Corey Conners", "Hideki Matsuyama", "Si Woo Kim", "Shane Lowry",
     "Jake Knapp", "Russell Henley"
 ]
 HARDCODED_LARRY_BACKUP = "Max Homa"
@@ -428,12 +428,15 @@ def api_debug():
     except Exception as e:
         results["get_live_data"] = {"status": "FAILED", "error": str(e)}
  
-    # Check whether our picks are matching anything
+    # Check ALL picks for name matching against live leaderboard
     lb, _ = get_live_data()
-    pick_check = {}
-    for pick in HARDCODED_LARRY_PICKS[:3] + HARDCODED_ANDY_PICKS[:3]:
+    pick_check = {"larry": {}, "andy": {}}
+    for pick in HARDCODED_LARRY_PICKS + [HARDCODED_LARRY_BACKUP]:
         match = next((p for p in lb if normalize_name(p["name"]) == normalize_name(pick)), None)
-        pick_check[pick] = match["name"] if match else "NO MATCH"
+        pick_check["larry"][pick] = match["name"] if match else "NO MATCH"
+    for pick in HARDCODED_ANDY_PICKS + [HARDCODED_ANDY_BACKUP]:
+        match = next((p for p in lb if normalize_name(p["name"]) == normalize_name(pick)), None)
+        pick_check["andy"][pick] = match["name"] if match else "NO MATCH"
     results["pick_name_matching"] = pick_check
  
     return jsonify(results)
