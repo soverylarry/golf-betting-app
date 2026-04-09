@@ -1,5 +1,4 @@
 /* Golf Betting App - Authentic Augusta Masters Scoreboard Theme */
-
 :root {
     /* Authentic Masters Scoreboard Colors */
     --masters-white: #ffffff;
@@ -12,13 +11,11 @@
     --background-sky: #e8f4f8;
     --shadow: rgba(0, 0, 0, 0.3);
 }
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
 body {
     font-family: 'Arial Black', 'Arial Bold', 'Helvetica', sans-serif;
     background: #ffffff;
@@ -27,12 +24,10 @@ body {
     min-height: 100vh;
     padding: 1rem;
 }
-
 .container {
     max-width: 1600px;
     margin: 0 auto;
 }
-
 /* Header - Masters Scoreboard Style with Curved Top */
 header {
     text-align: center;
@@ -45,7 +40,6 @@ header {
     position: relative;
     overflow: visible;
 }
-
 header::before {
     content: '';
     position: absolute;
@@ -58,7 +52,6 @@ header::before {
     border-radius: 30px 30px 0 0;
     z-index: -1;
 }
-
 header h1 {
     font-size: clamp(2rem, 6vw, 3.5rem);
     margin-bottom: 0.5rem;
@@ -67,7 +60,6 @@ header h1 {
     letter-spacing: 3px;
     text-transform: uppercase;
 }
-
 .tournament-name {
     font-size: clamp(1.5rem, 4vw, 2.5rem);
     color: var(--masters-green);
@@ -76,26 +68,22 @@ header h1 {
     letter-spacing: 2px;
     text-transform: uppercase;
 }
-
 .stakes {
     font-size: 1.2rem;
     color: var(--text-black);
     margin-top: 0.75rem;
     font-weight: 700;
 }
-
 .stakes strong {
     color: var(--score-red);
     font-weight: 900;
 }
-
 .last-updated {
     font-size: 0.95rem;
     color: #666;
     margin-top: 0.75rem;
     font-weight: 600;
 }
-
 /* Navigation */
 nav {
     display: flex;
@@ -108,7 +96,6 @@ nav {
     border-radius: 0 0 12px 12px;
     box-shadow: 0 8px 20px var(--shadow);
 }
-
 nav a {
     flex: 1;
     min-width: 130px;
@@ -125,20 +112,17 @@ nav a {
     letter-spacing: 1px;
     font-size: 1rem;
 }
-
 nav a:hover {
     background: var(--masters-green);
     color: var(--masters-white);
     transform: translateY(-3px);
     box-shadow: 0 6px 12px var(--shadow);
 }
-
 nav a.active {
     background: var(--masters-green);
     color: var(--masters-white);
     border-width: 5px;
 }
-
 /* Scoreboard - Masters Style */
 .scoreboard {
     display: grid;
@@ -146,13 +130,11 @@ nav a.active {
     gap: 2rem;
     margin-bottom: 2rem;
 }
-
 @media (max-width: 900px) {
     .scoreboard {
         grid-template-columns: 1fr;
     }
 }
-
 /* Side Bets Summary (below scoreboard) */
 .side-bets-summary {
     background: var(--masters-white);
@@ -163,7 +145,6 @@ nav a.active {
     box-shadow: 0 8px 20px var(--shadow);
     margin-bottom: 2rem;
 }
-
 .side-bets-summary h3 {
     margin-bottom: 1rem;
     color: var(--masters-green);
@@ -171,7 +152,6 @@ nav a.active {
     font-size: 1.2rem;
     text-transform: uppercase;
 }
-
 .team-card {
     background: var(--masters-white);
     border: 8px solid var(--masters-green);
@@ -179,7 +159,6 @@ nav a.active {
     box-shadow: 0 10px 30px var(--shadow);
     overflow: hidden;
 }
-
 /* Player Name Headers */
 .team-card h2 {
     font-size: 2rem;
@@ -192,7 +171,6 @@ nav a.active {
     text-transform: uppercase;
     border-bottom: 5px solid var(--masters-dark-green);
 }
-
 /* Score Display - Scoreboard Style */
 .total-score {
     font-size: clamp(5rem, 12vw, 7rem);
@@ -203,19 +181,15 @@ nav a.active {
     background: var(--masters-white);
     font-family: 'Arial Black', sans-serif;
 }
-
 .total-score.winning {
     color: var(--score-red);  /* Under par = RED */
 }
-
 .total-score.losing {
     color: var(--score-green);  /* Over par = GREEN */
 }
-
 .total-score.tied {
     color: var(--text-black);  /* Tied = BLACK */
 }
-
 .score-label {
     text-align: center;
     color: var(--text-black);
@@ -227,13 +201,11 @@ nav a.active {
     letter-spacing: 2px;
     border-top: 3px solid var(--masters-green);
 }
-
 /* Players List - Grid Style */
 .players-list {
     padding: 1.5rem;
     background: var(--masters-white);
 }
-
 .players-list h3 {
     font-size: 1.1rem;
     margin-bottom: 1rem;
@@ -244,7 +216,6 @@ nav a.active {
     border-bottom: 4px solid var(--masters-green);
     padding-bottom: 0.75rem;
 }
-
 .player-row {
     display: grid;
     grid-template-columns: 1fr auto auto;
@@ -257,19 +228,43 @@ nav a.active {
     align-items: center;
     border-left: 6px solid var(--masters-green);
 }
-
 .player-row.counting {
     border-left-color: var(--score-red);
     border-width: 4px;
     border-left-width: 8px;
     background: rgba(211, 47, 47, 0.05);
 }
-
 .player-row.bench {
     opacity: 0.6;
     border-left-color: #999;
 }
-
+ 
+/* 15th Player / Backup */
+.player-row.backup-player {
+    border-left-color: #b8860b;
+    border-left-width: 8px;
+    border-style: dashed;
+    opacity: 0.8;
+    background: rgba(184, 134, 11, 0.05);
+    margin-top: 0.75rem;
+}
+.player-row.backup-player .player-score {
+    color: #b8860b;
+}
+.backup-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    background: #b8860b;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 7px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+ 
 .player-name {
     font-weight: 900;
     color: var(--text-black);
@@ -280,7 +275,6 @@ nav a.active {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
 .player-score {
     font-weight: 900;
     font-size: 1.8rem;
@@ -288,15 +282,12 @@ nav a.active {
     text-align: right;
     font-family: 'Arial Black', sans-serif;
 }
-
 .player-row.counting .player-score {
-    color: var(--score-red);  /* Top 4 scores in RED */
+    color: var(--score-red);  /* Top 6 scores in RED */
 }
-
 .player-row.bench .player-score {
     color: var(--score-green);  /* Bench scores in GREEN */
 }
-
 .player-status {
     min-width: 40px;
     text-align: right;
@@ -304,11 +295,9 @@ nav a.active {
     font-size: 1rem;
     font-weight: 900;
 }
-
 .bench-players {
     margin-top: 1.5rem;
 }
-
 .bench-players summary {
     cursor: pointer;
     padding: 1rem;
@@ -322,11 +311,9 @@ nav a.active {
     letter-spacing: 1px;
     border: 3px solid var(--masters-dark-green);
 }
-
 .bench-players summary:hover {
     background: var(--masters-dark-green);
 }
-
 /* Controls */
 .controls {
     display: flex;
@@ -339,14 +326,12 @@ nav a.active {
     border-radius: 12px;
     box-shadow: 0 8px 20px var(--shadow);
 }
-
 @media (min-width: 640px) {
     .controls {
         flex-direction: row;
         justify-content: center;
     }
 }
-
 /* Buttons - Scoreboard Style */
 .btn-primary, .btn-secondary {
     padding: 1rem 2.5rem;
@@ -361,34 +346,28 @@ nav a.active {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
 .btn-primary {
     background: var(--masters-white);
     color: var(--masters-green);
 }
-
 .btn-primary:hover:not(:disabled) {
     background: var(--masters-green);
     color: var(--masters-white);
     transform: translateY(-3px);
     box-shadow: 0 6px 12px var(--shadow);
 }
-
 .btn-primary:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
-
 .btn-secondary {
     background: var(--masters-green);
     color: var(--masters-white);
 }
-
 .btn-secondary:hover {
     background: var(--masters-dark-green);
     transform: translateY(-3px);
 }
-
 .auto-refresh-toggle {
     display: flex;
     align-items: center;
@@ -398,13 +377,11 @@ nav a.active {
     color: var(--text-black);
     font-weight: 900;
 }
-
 .auto-refresh-toggle input[type="checkbox"] {
     width: 22px;
     height: 22px;
     cursor: pointer;
 }
-
 /* History Page */
 .win-stats {
     display: flex;
@@ -413,7 +390,6 @@ nav a.active {
     justify-content: center;
     margin-bottom: 2rem;
 }
-
 .stat-card {
     background: var(--masters-white);
     padding: 2.5rem;
@@ -423,13 +399,11 @@ nav a.active {
     border: 8px solid var(--masters-green);
     box-shadow: 0 8px 20px var(--shadow);
 }
-
 .stat-card .stat-number {
     font-size: 4.5rem;
     font-weight: 900;
     color: var(--score-red);
 }
-
 .stat-card .stat-label {
     color: var(--text-black);
     margin-top: 0.75rem;
@@ -437,13 +411,11 @@ nav a.active {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
 .history-list {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
 }
-
 .history-item {
     background: var(--masters-white);
     padding: 1.75rem;
@@ -452,12 +424,10 @@ nav a.active {
     border-left-width: 12px;
     box-shadow: 0 6px 15px var(--shadow);
 }
-
 .history-item h3 {
     color: var(--masters-green);
     font-weight: 900;
 }
-
 /* Admin Page */
 .admin-section {
     background: var(--masters-white);
@@ -467,7 +437,6 @@ nav a.active {
     border: 6px solid var(--masters-green);
     box-shadow: 0 8px 20px var(--shadow);
 }
-
 .admin-section h2 {
     margin-bottom: 1.25rem;
     color: var(--masters-green);
@@ -475,7 +444,6 @@ nav a.active {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
-
 .form-group label {
     display: block;
     margin-bottom: 0.75rem;
@@ -484,7 +452,6 @@ nav a.active {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
 .form-group input[type="text"],
 .form-group select {
     width: 100%;
@@ -496,7 +463,6 @@ nav a.active {
     font-size: 1.1rem;
     font-weight: 700;
 }
-
 .player-selector {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -508,7 +474,6 @@ nav a.active {
     border: 4px solid var(--masters-green);
     border-radius: 8px;
 }
-
 .player-selector label {
     display: flex;
     align-items: center;
@@ -521,12 +486,10 @@ nav a.active {
     font-weight: 700;
     background: var(--masters-white);
 }
-
 .player-selector label:hover {
     background: rgba(0, 103, 71, 0.1);
     border-width: 4px;
 }
-
 /* Draft Page */
 .draft-container {
     display: grid;
@@ -534,35 +497,30 @@ nav a.active {
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
-
 @media (max-width: 968px) {
     .draft-container {
         grid-template-columns: 1fr;
     }
 }
-
 .draft-board {
     background: #ffffff;
     border-radius: 8px;
     padding: 1.5rem;
     min-height: 400px;
-    border: 4px solid var(--primary-green);
+    border: 4px solid var(--masters-green);
 }
-
 .draft-board h2 {
-    color: var(--primary-green);
+    color: var(--masters-green);
     font-weight: 700;
     margin-bottom: 1rem;
 }
-
 .draft-board h3 {
     color: #333333;
     font-weight: 700;
     margin-bottom: 1rem;
 }
-
 .turn-indicator {
-    background: var(--primary-green);
+    background: var(--masters-green);
     color: #ffffff;
     padding: 1rem;
     border-radius: 8px;
@@ -571,16 +529,14 @@ nav a.active {
     font-size: 1.3rem;
     margin-bottom: 1.5rem;
 }
-
 .pick-counter {
     color: #333333;
     font-weight: 700;
     margin-bottom: 1rem;
 }
-
 .player-card {
     background: #ffffff;
-    border: 3px solid var(--primary-green);
+    border: 3px solid var(--masters-green);
     padding: 1rem;
     margin-bottom: 0.75rem;
     border-radius: 6px;
@@ -590,28 +546,24 @@ nav a.active {
     font-weight: 600;
     color: #000000;
 }
-
 .player-card:hover {
     transform: translateX(5px);
     background: rgba(0, 103, 71, 0.1);
     border-left-width: 8px;
 }
-
 .player-card.selected {
     opacity: 0.3;
     cursor: not-allowed;
 }
-
 .drafted-list {
     background: rgba(0, 103, 71, 0.05);
     padding: 1rem;
     border-radius: 6px;
     min-height: 200px;
 }
-
 .drafted-list li {
     background: #ffffff;
-    border: 2px solid var(--primary-green);
+    border: 2px solid var(--masters-green);
     padding: 0.75rem;
     margin-bottom: 0.5rem;
     border-radius: 4px;
@@ -619,19 +571,16 @@ nav a.active {
     color: #000000;
     font-weight: 600;
 }
-
 .draft-actions {
     display: flex;
     gap: 1rem;
     margin-top: 1.5rem;
     flex-wrap: wrap;
 }
-
 .draft-actions button {
     flex: 1;
     min-width: 120px;
 }
-
 /* Responsive */
 @media (max-width: 640px) {
     header {
