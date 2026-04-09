@@ -105,7 +105,7 @@ def _fetch_masters_dot_com():
         last  = p.get("last_name", "")
         name  = f"{first} {last}".strip()
  
-        raw = p.get("total", "E")
+        raw = p.get("topar", "E")
         if raw in ("E", "even", "", None):
             score = 0
         else:
