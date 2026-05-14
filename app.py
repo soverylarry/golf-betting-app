@@ -134,65 +134,43 @@ def _fetch_espn():
 
             status_obj = comp.get("status", {})
             status_type = status_obj.get("type", {})
-            status_name = status_type.get("name", "")       # e.g. "STATUS_IN_PROGRESS"
-            short_detail = status_type.get("shortDetail", "-")  # e.g. "In Progress", "1:45 PM ET", "F"
+            status_name  = status_type.get("name", "")          # "STATUS_IN_PROGRESS" etc.
+            status_display = status_obj.get("displayValue", "-") # "Thru 9", "F", "Tee Time"
 
-            # Score parsing — check statistics array first for a to-par value,
-            # then fall back to the top-level score field.
-            # ESPN's top-level `score` field can lag for in-progress players;
-            # the statistics array often carries the live to-par value.
-            raw_score = comp.get("score", "E")
+            # --- SCORE ---
+            # ESPN's `statistics` array has a "scoreToPar" entry with the live to-par value.
+            # The top-level `score` key is an OBJECT {displayValue, value} — not a string —
+            # and its value is raw strokes (39.0), not to-par. Always prefer scoreToPar.
             score = 0
             score_found = False
             for stat in comp.get("statistics", []):
-                sname = stat.get("name", "").lower()
-                if sname in ("score", "topar"):
-                    val = stat.get("value", None)
-                    dval = stat.get("displayValue", "")
-                    if val is not None:
-                        try:
-                            score = int(float(val))
-                            score_found = True
-                            break
-                        except (TypeError, ValueError):
-                            pass
-                    if dval not in ("E", "even", "", "-", None):
-                        try:
-                            score = int(str(dval).replace("+", ""))
-                            score_found = True
-                            break
-                        except ValueError:
-                            pass
-            if not score_found:
-                if raw_score in ("E", "even", "", None):
-                    score = 0
-                else:
+                if stat.get("name") == "scoreToPar":
                     try:
-                        score = int(str(raw_score).replace("+", ""))
+                        score = int(float(stat.get("value", 0)))
+                        score_found = True
+                    except (TypeError, ValueError):
+                        pass
+                    break
+            if not score_found:
+                # Fall back: read displayValue from the score object
+                score_obj = comp.get("score", {})
+                dval = score_obj.get("displayValue", "E") if isinstance(score_obj, dict) else str(score_obj)
+                if dval not in ("E", "even", "", None):
+                    try:
+                        score = int(str(dval).replace("+", ""))
                     except ValueError:
                         score = 0
 
-            # ESPN buries the hole number in the statistics array for in-progress players.
-            # Check there first, then fall back on status text.
-            thru = None
-            for stat in comp.get("statistics", []):
-                sname = stat.get("name", "").lower()
-                if sname in ("thru", "hole", "holesplayed"):
-                    val = stat.get("displayValue", "")
-                    if val and val not in ("0", "-", ""):
-                        thru = f"Thru {val}"
-                        break
-
-            if thru is None:
-                if "FINISHED" in status_name:
-                    thru = "F"
-                elif "SCHEDULED" in status_name:
-                    # shortDetail should have the tee time e.g. "1:45 PM ET"
-                    thru = short_detail if short_detail not in ("Scheduled", "-", "") else "TBD"
-                elif short_detail not in ("In Progress", "-", ""):
-                    thru = short_detail
-                else:
-                    thru = "-"
+            # --- THRU ---
+            # status.displayValue carries exactly what we want: "Thru 9", "F", or tee time.
+            if "FINISHED" in status_name:
+                thru = "F"
+            elif "IN_PROGRESS" in status_name:
+                thru = status_display if status_display not in ("In Progress", "-", "") else "-"
+            elif "SCHEDULED" in status_name:
+                thru = status_display if status_display not in ("Scheduled", "-", "") else "TBD"
+            else:
+                thru = status_display if status_display not in ("-", "") else "-"
 
             leaderboard.append({
                 "name":     full_name,
