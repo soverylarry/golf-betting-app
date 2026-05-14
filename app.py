@@ -142,7 +142,31 @@ def _fetch_espn():
                     score = 0
 
             status_obj = comp.get("status", {})
-            thru = status_obj.get("type", {}).get("shortDetail", "-")
+            status_type = status_obj.get("type", {})
+            status_name = status_type.get("name", "")       # e.g. "STATUS_IN_PROGRESS"
+            short_detail = status_type.get("shortDetail", "-")  # e.g. "In Progress", "1:45 PM ET", "F"
+
+            # ESPN buries the hole number in the statistics array for in-progress players.
+            # Check there first, then fall back on status text.
+            thru = None
+            for stat in comp.get("statistics", []):
+                sname = stat.get("name", "").lower()
+                if sname in ("thru", "hole", "holesplayed"):
+                    val = stat.get("displayValue", "")
+                    if val and val not in ("0", "-", ""):
+                        thru = f"Thru {val}"
+                        break
+
+            if thru is None:
+                if "FINISHED" in status_name:
+                    thru = "F"
+                elif "SCHEDULED" in status_name:
+                    # shortDetail should have the tee time e.g. "1:45 PM ET"
+                    thru = short_detail if short_detail not in ("Scheduled", "-", "") else "TBD"
+                elif short_detail not in ("In Progress", "-", ""):
+                    thru = short_detail
+                else:
+                    thru = "-"
 
             leaderboard.append({
                 "name":     full_name,
@@ -527,7 +551,8 @@ def archive_week():
         "larry_score": larry['total'],
         "andy_score": andy['total'],
         "winner": winner,
-        "margin": margin
+        "margin": margin,
+        "stakes": settings.get('stakes', '')
     }
 
     history_data = load_json(HISTORY_FILE)
