@@ -137,19 +137,33 @@ def _fetch_espn():
             status_name = status_type.get("name", "")       # e.g. "STATUS_IN_PROGRESS"
             short_detail = status_type.get("shortDetail", "-")  # e.g. "In Progress", "1:45 PM ET", "F"
 
-            # ESPN's `score` field only counts COMPLETED rounds — it stays at E/0 while
-            # a player is mid-round. For in-progress players, the current round score
-            # lives in `linescores[last].value`, so we sum all linescores to get the
-            # true tournament total including the in-progress round.
+            # Score parsing — check statistics array first for a to-par value,
+            # then fall back to the top-level score field.
+            # ESPN's top-level `score` field can lag for in-progress players;
+            # the statistics array often carries the live to-par value.
             raw_score = comp.get("score", "E")
-            linescores = comp.get("linescores", [])
-
-            if "IN_PROGRESS" in status_name and linescores:
-                try:
-                    score = sum(int(float(ls.get("value", 0))) for ls in linescores)
-                except (TypeError, ValueError):
-                    score = 0
-            else:
+            score = 0
+            score_found = False
+            for stat in comp.get("statistics", []):
+                sname = stat.get("name", "").lower()
+                if sname in ("score", "topar"):
+                    val = stat.get("value", None)
+                    dval = stat.get("displayValue", "")
+                    if val is not None:
+                        try:
+                            score = int(float(val))
+                            score_found = True
+                            break
+                        except (TypeError, ValueError):
+                            pass
+                    if dval not in ("E", "even", "", "-", None):
+                        try:
+                            score = int(str(dval).replace("+", ""))
+                            score_found = True
+                            break
+                        except ValueError:
+                            pass
+            if not score_found:
                 if raw_score in ("E", "even", "", None):
                     score = 0
                 else:
