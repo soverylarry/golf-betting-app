@@ -17,30 +17,28 @@ SIDE_BETS_FILE = 'side_bets.json'
 PLAYERS_FILE = 'players.json'
 PLAYERS_PER_TEAM = 14
 COUNT_BEST = 6
-# Masters Tournament ID from Claude's sports data
-CURRENT_TOURNAMENT_ID = "ebf84425-7ae8-491e-a128-831d175e287a"
-CURRENT_TOURNAMENT_NAME = "Masters Tournament"
- 
-# --- MASTERS 2026 HARDCODED PICKS ---
-# Draft completed April 8, 2026. Hardcoded as interim fix for picks.json persistence bug.
-# Rounds 1-14 are active roster; Round 15 is the backup (alternate only if a top-6
-# player withdraws after the 36-hole cut).
+CURRENT_TOURNAMENT_NAME = "108th PGA Championship"
+
+# --- PGA CHAMPIONSHIP 2026 HARDCODED PICKS ---
+# Draft completed May 13, 2026. Hardcoded as interim fix for picks.json persistence bug.
+# 14 active roster players + 1 backup (alternate only if a top-6 player withdraws
+# after the 36-hole cut).
 HARDCODED_LARRY_PICKS = [
-    "Jon Rahm", "Ludvig Aberg", "Xander Schauffele", "Bryson DeChambeau",
-    "Cameron Young", "Matt Fitzpatrick", "Akshay Bhatia", "Min Woo Lee",
-    "Corey Conners", "Hideki Matsuyama", "Si Woo Kim", "Shane Lowry",
-    "Jake Knapp", "Russell Henley"
+    "Scottie Scheffler", "Cameron Young", "Xander Schauffele", "Bryson DeChambeau",
+    "Matt Fitzpatrick", "Jordan Spieth", "Russell Henley", "Patrick Cantlay",
+    "Tyrrell Hatton", "Chris Gotterup", "Si Woo Kim", "Nicolai Hojgaard",
+    "Sam Burns", "Rickie Fowler"
 ]
-HARDCODED_LARRY_BACKUP = "Max Homa"
- 
+HARDCODED_LARRY_BACKUP = "Joaquin Niemann"
+
 HARDCODED_ANDY_PICKS = [
-    "Rory McIlroy", "Scottie Scheffler", "Brooks Koepka", "Justin Rose",
-    "Tommy Fleetwood", "Viktor Hovland", "Nicolai Hojgaard", "Rasmus Hojgaard",
-    "Patrick Cantlay", "Robert MacIntyre", "Jordan Spieth", "Keegan Bradley",
-    "Jason Day", "Harris English"
+    "Rory McIlroy", "Justin Rose", "Tommy Fleetwood", "Ludvig Aberg",
+    "Akshay Bhatia", "J.J. Spaun", "Viktor Hovland", "Robert MacIntyre",
+    "Justin Thomas", "Keegan Bradley", "Adam Scott", "Hideki Matsuyama",
+    "Sungjae Im", "Brooks Koepka"
 ]
-HARDCODED_ANDY_BACKUP = "Chris Gotterup"
- 
+HARDCODED_ANDY_BACKUP = "Jon Rahm"
+
 # --- DATA MANAGEMENT ---
 def load_json(filename):
     if os.path.exists(filename):
@@ -61,7 +59,7 @@ def load_picks():
     data['andy'] = list(set(data.get('andy', [])))
     return data
 def load_players():
-    """Load the full 2026 Masters tournament field from players.json"""
+    """Load the full tournament field from players.json"""
     data = load_json(PLAYERS_FILE)
     if not data:
         return []
@@ -78,68 +76,25 @@ def load_side_bets():
             "bet5_type": "", "bet5_larry": "", "bet5_andy": "", "bet5_winner": "",
         }
     return data
- 
+
 current_picks = load_picks()
- 
+
 # --- LIVE DATA FETCHING ---
- 
+
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; GolfBettingApp/1.0)"}
- 
-def _fetch_masters_dot_com():
-    """
-    Try Augusta National's official JSON score feed.
-    Returns (leaderboard_list, tournament_name) or raises on failure.
-    """
-    url = "https://www.masters.com/en_US/scores/feeds/2026/scores.json"
-    resp = requests.get(url, headers=HEADERS, timeout=10)
-    resp.raise_for_status()
-    data = resp.json()
- 
-    players = data.get("data", {}).get("player", [])
-    if not players:
-        raise ValueError("masters.com: empty player list")
- 
-    leaderboard = []
-    for p in players:
-        first = p.get("first_name", "")
-        last  = p.get("last_name", "")
-        name  = f"{first} {last}".strip()
- 
-        raw = p.get("topar", "E")
-        if raw in ("E", "even", "", None):
-            score = 0
-        else:
-            try:
-                score = int(str(raw).replace("+", ""))
-            except ValueError:
-                score = 0
- 
-        thru = p.get("thru", "-") or "-"
-        pos  = p.get("pos", "-")
- 
-        leaderboard.append({
-            "name":     name,
-            "score":    score,
-            "status":   "active",
-            "thru":     str(thru),
-            "position": str(pos),
-        })
- 
-    print(f"masters.com: loaded {len(leaderboard)} players")
-    return leaderboard, CURRENT_TOURNAMENT_NAME
- 
- 
+
+
 def _fetch_espn():
     """
     Try ESPN's undocumented public golf scoreboard API.
+    Searches for the PGA Championship event.
     Returns (leaderboard_list, tournament_name) or raises on failure.
     """
-    # Try both known ESPN golf endpoint formats
     urls = [
         "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard",
         "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard",
     ]
- 
+
     data = None
     used_url = None
     for url in urls:
@@ -151,22 +106,24 @@ def _fetch_espn():
             break
         except Exception as e:
             print(f"ESPN endpoint {url} failed: {e}")
- 
+
     if not data:
         raise ValueError("All ESPN endpoints failed")
- 
+
     events = data.get("events", [])
     target = None
+    # Look for PGA Championship specifically
     for event in events:
         name = event.get("name", "").lower()
-        if "masters" in name or "augusta" in name:
+        if "pga championship" in name:
             target = event
             break
+    # Fall back to first event if PGA Championship not found by name
     if not target and events:
         target = events[0]
     if not target:
         raise ValueError("ESPN: no events in response")
- 
+
     tournament_name = target.get("name", CURRENT_TOURNAMENT_NAME)
     leaderboard = []
     competitions = target.get("competitions", [])
@@ -174,7 +131,7 @@ def _fetch_espn():
         for comp in competitions[0].get("competitors", []):
             athlete   = comp.get("athlete", {})
             full_name = athlete.get("displayName", "")
- 
+
             raw_score = comp.get("score", "E")
             if raw_score in ("E", "even", "", None):
                 score = 0
@@ -183,10 +140,10 @@ def _fetch_espn():
                     score = int(str(raw_score).replace("+", ""))
                 except ValueError:
                     score = 0
- 
+
             status_obj = comp.get("status", {})
             thru = status_obj.get("type", {}).get("shortDetail", "-")
- 
+
             leaderboard.append({
                 "name":     full_name,
                 "score":    score,
@@ -194,52 +151,49 @@ def _fetch_espn():
                 "thru":     thru,
                 "position": str(comp.get("place", "-")),
             })
- 
+
     print(f"ESPN ({used_url}): loaded {len(leaderboard)} players for '{tournament_name}'")
     if not leaderboard:
         raise ValueError("ESPN: empty competitor list")
     return leaderboard, tournament_name
- 
- 
+
+
 def get_live_data():
     """
-    Fetch live leaderboard. Tries sources in order:
-      1. masters.com official JSON feed
-      2. ESPN public API (two endpoint variants)
-      3. Static players.json fallback
+    Fetch live leaderboard from ESPN (primary source for PGA Championship).
+    Falls back to static players.json if ESPN is unavailable.
     """
-    sources = [
-        ("masters.com", _fetch_masters_dot_com),
-        ("ESPN",        _fetch_espn),
-    ]
-    for name, fn in sources:
-        try:
-            leaderboard, tournament_name = fn()
-            if leaderboard:
-                return leaderboard, tournament_name
-        except Exception as e:
-            print(f"[get_live_data] {name} failed: {e}")
- 
+    try:
+        leaderboard, tournament_name = _fetch_espn()
+        if leaderboard:
+            return leaderboard, tournament_name
+    except Exception as e:
+        print(f"[get_live_data] ESPN failed: {e}")
+
     # Final fallback — static data, all scores will be 0/E
-    print("[get_live_data] All live sources failed. Using players.json fallback.")
+    print("[get_live_data] ESPN failed. Using players.json fallback.")
     all_players = load_players()
     return (all_players if all_players else []), CURRENT_TOURNAMENT_NAME
- 
+
 def normalize_name(name):
     """
     Normalize a player name for fuzzy matching.
-    Handles two types of special characters:
-      1. Composed chars that decompose via NFKD (Å→A, É→E, etc.)
-      2. Standalone Nordic/special letters that don't decompose (ø→o, æ→ae, ß→ss)
-    This lets us match API names like 'Højgaard' against our ASCII picks 'Hojgaard'.
+    Handles:
+      1. Periods (J.J. Spaun → jj spaun)
+      2. Composed chars that decompose via NFKD (Å→A, É→E, etc.)
+      3. Standalone Nordic/special letters that don't decompose (ø→o, æ→ae, ß→ss)
+    This lets us match API names like 'Åberg', 'Højgaard', 'J.J. Spaun'
+    against our ASCII picks 'Aberg', 'Hojgaard', 'J.J. Spaun'.
     """
+    # Strip periods (handles J.J. Spaun → JJ Spaun)
+    name = str(name).replace('.', '')
     # Manual replacements for chars that NFKD won't decompose
     _manual = str.maketrans({'ø': 'o', 'Ø': 'o', 'æ': 'ae', 'Æ': 'ae',
                               'ð': 'd', 'Ð': 'd', 'þ': 'th', 'Þ': 'th', 'ß': 'ss'})
-    name = str(name).translate(_manual)
+    name = name.translate(_manual)
     nfkd = unicodedata.normalize('NFKD', name)
     return ''.join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
- 
+
 def parse_score(score_val):
     """Parse a golf score value to integer for sorting/summing."""
     if isinstance(score_val, (int, float)):
@@ -253,7 +207,7 @@ def parse_score(score_val):
         except:
             return 100
     return 100
- 
+
 def calculate_team_score(picks, leaderboard, backup=None):
     """
     Calculate team score — top 6 of 14 active players count.
@@ -265,8 +219,8 @@ def calculate_team_score(picks, leaderboard, backup=None):
     """
     team_data = []
     for player_name in picks:
-        # Use normalize_name() so accented API names (Åberg, Højgaard) match
-        # our ASCII pick strings (Aberg, Hojgaard)
+        # Use normalize_name() so accented API names (Åberg, Højgaard) and
+        # dotted names (J.J. Spaun) match our pick strings
         player_stats = next(
             (p for p in leaderboard
              if normalize_name(p["name"]) == normalize_name(player_name)),
@@ -282,16 +236,16 @@ def calculate_team_score(picks, leaderboard, backup=None):
                 "thru": "-",
                 "position": "-"
             })
- 
+
     # Sort by score (lowest = best in golf)
     team_data.sort(key=lambda x: parse_score(x['score']))
- 
+
     # Mark top COUNT_BEST as counting
     for i, player in enumerate(team_data):
         player['counting'] = (i < COUNT_BEST)
- 
+
     total_score = sum(parse_score(p['score']) for p in team_data[:COUNT_BEST])
- 
+
     # Handle backup player (15th — always separate, never scored)
     backup_data = None
     if backup:
@@ -312,41 +266,41 @@ def calculate_team_score(picks, leaderboard, backup=None):
             }
         backup_data['counting'] = False
         backup_data['is_backup'] = True
- 
+
     return {
         "total": total_score,
         "all_players": team_data,
         "backup": backup_data
     }
- 
+
 def get_available_players_for_side_bets():
     """Get players NOT selected in main draft (available for side bets)"""
     all_players = load_players()
     drafted = set(HARDCODED_LARRY_PICKS + [HARDCODED_LARRY_BACKUP] +
                   HARDCODED_ANDY_PICKS + [HARDCODED_ANDY_BACKUP])
     return [p for p in all_players if p['name'] not in drafted]
- 
+
 # --- ROUTES ---
 @app.route('/')
 def dashboard():
     """Main dashboard - shows current tournament standings"""
     leaderboard, tournament_name = get_live_data()
- 
+
     settings = load_json(SETTINGS_FILE)
     stakes = settings.get('stakes', 'Bragging Rights')
     tournament_name_custom = settings.get('tournament_name', tournament_name)
- 
+
     larry_results = calculate_team_score(HARDCODED_LARRY_PICKS, leaderboard, HARDCODED_LARRY_BACKUP)
     andy_results  = calculate_team_score(HARDCODED_ANDY_PICKS,  leaderboard, HARDCODED_ANDY_BACKUP)
- 
+
     try:
         est = pytz.timezone('US/Eastern')
         current_time = datetime.now(est).strftime("%I:%M %p ET")
     except:
         current_time = datetime.now().strftime("%I:%M %p")
- 
+
     side_bets = load_side_bets()
- 
+
     return render_template('index.html',
                            larry=larry_results,
                            andy=andy_results,
@@ -354,28 +308,28 @@ def dashboard():
                            stakes=stakes,
                            side_bets=side_bets,
                            last_updated=current_time)
- 
+
 @app.route('/api/refresh')
 def api_refresh():
     """API endpoint for auto-refresh - returns JSON data"""
     leaderboard, tournament_name = get_live_data()
- 
+
     larry_results = calculate_team_score(HARDCODED_LARRY_PICKS, leaderboard, HARDCODED_LARRY_BACKUP)
     andy_results  = calculate_team_score(HARDCODED_ANDY_PICKS,  leaderboard, HARDCODED_ANDY_BACKUP)
- 
+
     try:
         est = pytz.timezone('US/Eastern')
         current_time = datetime.now(est).strftime("%I:%M %p ET")
     except:
         current_time = datetime.now().strftime("%I:%M %p")
- 
+
     return jsonify({
         'larry': larry_results,
         'andy': andy_results,
         'tournament_name': tournament_name,
         'last_updated': current_time
     })
- 
+
 @app.route('/api/debug')
 def api_debug():
     """
@@ -383,39 +337,19 @@ def api_debug():
     what each data source returns. Useful for troubleshooting live scoring.
     """
     results = {}
- 
-    # Expose raw masters.com JSON for first 2 players so we can see exact field names
-    try:
-        url = "https://www.masters.com/en_US/scores/feeds/2026/scores.json"
-        resp = requests.get(url, headers=HEADERS, timeout=10)
-        raw_data = resp.json()
-        raw_players = raw_data.get("data", {}).get("player", [])
-        results["masters_com_raw_fields"] = raw_players[:2]  # show full raw dict for first 2 players
-    except Exception as e:
-        results["masters_com_raw_fields"] = {"error": str(e)}
- 
-    # Test masters.com (parsed)
-    try:
-        lb, name = _fetch_masters_dot_com()
-        results["masters_com"] = {
-            "status": "OK",
-            "player_count": len(lb),
-            "sample": lb[:3],
-        }
-    except Exception as e:
-        results["masters_com"] = {"status": "FAILED", "error": str(e)}
- 
+
     # Test ESPN
     try:
         lb, name = _fetch_espn()
         results["espn"] = {
             "status": "OK",
+            "event_name": name,
             "player_count": len(lb),
-            "sample": lb[:3],
+            "sample": lb[:5],
         }
     except Exception as e:
         results["espn"] = {"status": "FAILED", "error": str(e)}
- 
+
     # Show what get_live_data() actually used
     try:
         lb, name = get_live_data()
@@ -427,7 +361,7 @@ def api_debug():
         }
     except Exception as e:
         results["get_live_data"] = {"status": "FAILED", "error": str(e)}
- 
+
     # Check ALL picks for name matching against live leaderboard
     lb, _ = get_live_data()
     pick_check = {"larry": {}, "andy": {}}
@@ -438,20 +372,20 @@ def api_debug():
         match = next((p for p in lb if normalize_name(p["name"]) == normalize_name(pick)), None)
         pick_check["andy"][pick] = match["name"] if match else "NO MATCH"
     results["pick_name_matching"] = pick_check
- 
+
     return jsonify(results)
- 
+
 @app.route('/history')
 def history():
     """Tournament history page with season tracking"""
     history_data = load_json(HISTORY_FILE)
     if not isinstance(history_data, list):
         history_data = []
- 
+
     larry_wins = sum(1 for h in history_data if h['winner'] == 'Larry')
     andy_wins  = sum(1 for h in history_data if h['winner'] == 'Andy')
     ties       = sum(1 for h in history_data if h['winner'] == 'Tie')
- 
+
     larry_season_strokes = 0
     andy_season_strokes  = 0
     for tournament in history_data:
@@ -461,7 +395,7 @@ def history():
             larry_season_strokes += larry_diff
         elif andy_diff > 0:
             andy_season_strokes += andy_diff
- 
+
     return render_template('history.html',
                            history=history_data,
                            larry_wins=larry_wins,
@@ -469,20 +403,20 @@ def history():
                            ties=ties,
                            larry_season_strokes=larry_season_strokes,
                            andy_season_strokes=andy_season_strokes)
- 
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     """Admin panel - configure tournament settings only"""
     global current_picks
- 
+
     settings = load_json(SETTINGS_FILE)
     current_stakes = settings.get('stakes', 'Bragging Rights')
-    current_tournament_name = settings.get('tournament_name', 'The Masters Tournament')
- 
+    current_tournament_name = settings.get('tournament_name', CURRENT_TOURNAMENT_NAME)
+
     if request.method == 'POST':
         if 'archive_week' in request.form:
             return redirect(url_for('archive_week'))
- 
+
         if 'larry_picks' in request.form or 'andy_picks' in request.form:
             larry_picks = request.form.getlist('larry_picks')
             andy_picks  = request.form.getlist('andy_picks')
@@ -492,29 +426,29 @@ def admin():
             if 'stakes' in request.form:
                 new_settings = {
                     'stakes': request.form.get('stakes', 'Bragging Rights'),
-                    'tournament_name': settings.get('tournament_name', 'The Masters Tournament')
+                    'tournament_name': settings.get('tournament_name', CURRENT_TOURNAMENT_NAME)
                 }
                 save_json(SETTINGS_FILE, new_settings)
             return redirect(url_for('dashboard'))
- 
+
         new_settings = {
             'stakes': request.form.get('stakes', 'Bragging Rights'),
-            'tournament_name': request.form.get('tournament_name', 'The Masters Tournament')
+            'tournament_name': request.form.get('tournament_name', CURRENT_TOURNAMENT_NAME)
         }
         save_json(SETTINGS_FILE, new_settings)
         return redirect(url_for('dashboard'))
- 
+
     return render_template('admin.html',
                            stakes=current_stakes,
                            tournament_name=current_tournament_name)
- 
+
 @app.route('/draft')
 def draft():
     """Snake draft interface - 14 players each"""
     leaderboard, _ = get_live_data()
     all_players_sorted = sorted(leaderboard, key=lambda x: x['name'])
     return render_template('draft.html', players=all_players_sorted)
- 
+
 @app.route('/side_bets', methods=['GET', 'POST'])
 def side_bets():
     """Manage side bets - 5 bets, $2 each, 36-hole format"""
@@ -538,32 +472,32 @@ def side_bets():
         }
         save_json(SIDE_BETS_FILE, bet_data)
         return redirect(url_for('side_bets'))
- 
+
     side_bets_data = load_side_bets()
     available_players = get_available_players_for_side_bets()
     show_results = False
     larry_wins = 0
     andy_wins  = 0
- 
+
     return render_template('side_bets.html',
                            side_bets=side_bets_data,
                            available_players=available_players,
                            show_results=show_results,
                            larry_wins=larry_wins,
                            andy_wins=andy_wins)
- 
+
 @app.route('/archive_week')
 def archive_week():
     """Archive current tournament results"""
     global current_picks
     leaderboard, tournament_name = get_live_data()
- 
+
     settings = load_json(SETTINGS_FILE)
     tournament_name = settings.get('tournament_name', tournament_name)
- 
+
     larry = calculate_team_score(HARDCODED_LARRY_PICKS, leaderboard, HARDCODED_LARRY_BACKUP)
     andy  = calculate_team_score(HARDCODED_ANDY_PICKS,  leaderboard, HARDCODED_ANDY_BACKUP)
- 
+
     if larry['total'] < andy['total']:
         winner = "Larry"
         margin = andy['total'] - larry['total']
@@ -573,7 +507,7 @@ def archive_week():
     else:
         winner = "Tie"
         margin = 0
- 
+
     tournament_lower = tournament_name.lower()
     if 'masters' in tournament_lower:
         major_type = 'masters'
@@ -585,7 +519,7 @@ def archive_week():
         major_type = 'theopen'
     else:
         major_type = 'other'
- 
+
     new_record = {
         "date": datetime.now().strftime("%Y-%m-%d"),
         "tournament": tournament_name,
@@ -595,16 +529,16 @@ def archive_week():
         "winner": winner,
         "margin": margin
     }
- 
+
     history_data = load_json(HISTORY_FILE)
     if not isinstance(history_data, list):
         history_data = []
     history_data.insert(0, new_record)
     save_json(HISTORY_FILE, history_data)
- 
+
     save_json(PICKS_FILE, {"larry": [], "andy": []})
     current_picks = {"larry": [], "andy": []}
-    save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights', 'tournament_name': 'The Masters Tournament'})
+    save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights', 'tournament_name': CURRENT_TOURNAMENT_NAME})
     save_json(SIDE_BETS_FILE, {
         "bet1_type": "", "bet1_larry": "", "bet1_andy": "", "bet1_winner": "",
         "bet2_type": "", "bet2_larry": "", "bet2_andy": "", "bet2_winner": "",
@@ -612,16 +546,16 @@ def archive_week():
         "bet4_type": "", "bet4_larry": "", "bet4_andy": "", "bet4_winner": "",
         "bet5_type": "", "bet5_larry": "", "bet5_andy": "", "bet5_winner": "",
     })
- 
+
     return redirect(url_for('history'))
- 
+
 if __name__ == '__main__':
     if not os.path.exists(PICKS_FILE):
         save_json(PICKS_FILE, {"larry": [], "andy": []})
     if not os.path.exists(HISTORY_FILE):
         save_json(HISTORY_FILE, [])
     if not os.path.exists(SETTINGS_FILE):
-        save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights', 'tournament_name': 'The Masters Tournament'})
+        save_json(SETTINGS_FILE, {'stakes': 'Bragging Rights', 'tournament_name': CURRENT_TOURNAMENT_NAME})
     if not os.path.exists(SIDE_BETS_FILE):
         save_json(SIDE_BETS_FILE, {
             "bet1_type": "", "bet1_larry": "", "bet1_andy": "", "bet1_winner": "",
