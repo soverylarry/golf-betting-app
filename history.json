@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "date": "2026-04-13",
+    "tournament": "Masters Tournament",
+    "major_type": "masters",
+    "larry_score": -44,
+    "andy_score": -48,
+    "winner": "Andy",
+    "margin": 4,
+    "stakes": "$25"
+  }
+]
