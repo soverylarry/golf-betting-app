@@ -132,19 +132,31 @@ def _fetch_espn():
             athlete   = comp.get("athlete", {})
             full_name = athlete.get("displayName", "")
 
-            raw_score = comp.get("score", "E")
-            if raw_score in ("E", "even", "", None):
-                score = 0
-            else:
-                try:
-                    score = int(str(raw_score).replace("+", ""))
-                except ValueError:
-                    score = 0
-
             status_obj = comp.get("status", {})
             status_type = status_obj.get("type", {})
             status_name = status_type.get("name", "")       # e.g. "STATUS_IN_PROGRESS"
             short_detail = status_type.get("shortDetail", "-")  # e.g. "In Progress", "1:45 PM ET", "F"
+
+            # ESPN's `score` field only counts COMPLETED rounds — it stays at E/0 while
+            # a player is mid-round. For in-progress players, the current round score
+            # lives in `linescores[last].value`, so we sum all linescores to get the
+            # true tournament total including the in-progress round.
+            raw_score = comp.get("score", "E")
+            linescores = comp.get("linescores", [])
+
+            if "IN_PROGRESS" in status_name and linescores:
+                try:
+                    score = sum(int(float(ls.get("value", 0))) for ls in linescores)
+                except (TypeError, ValueError):
+                    score = 0
+            else:
+                if raw_score in ("E", "even", "", None):
+                    score = 0
+                else:
+                    try:
+                        score = int(str(raw_score).replace("+", ""))
+                    except ValueError:
+                        score = 0
 
             # ESPN buries the hole number in the statistics array for in-progress players.
             # Check there first, then fall back on status text.
@@ -362,7 +374,34 @@ def api_debug():
     """
     results = {}
 
-    # Test ESPN
+    # Show raw ESPN competitor object for first in-progress player (field inspection)
+    try:
+        for url in [
+            "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard",
+            "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard",
+        ]:
+            try:
+                resp = requests.get(url, headers=HEADERS, timeout=10)
+                raw = resp.json()
+                for event in raw.get("events", []):
+                    if "pga championship" in event.get("name", "").lower():
+                        comps = event.get("competitions", [{}])[0].get("competitors", [])
+                        # Find first in-progress player to inspect
+                        sample_comp = next(
+                            (c for c in comps
+                             if "IN_PROGRESS" in c.get("status", {}).get("type", {}).get("name", "")),
+                            comps[0] if comps else {}
+                        )
+                        results["espn_raw_competitor"] = sample_comp
+                        break
+                if "espn_raw_competitor" in results:
+                    break
+            except Exception:
+                continue
+    except Exception as e:
+        results["espn_raw_competitor"] = {"error": str(e)}
+
+    # Test ESPN (parsed)
     try:
         lb, name = _fetch_espn()
         results["espn"] = {
