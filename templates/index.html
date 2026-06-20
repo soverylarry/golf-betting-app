@@ -3,27 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Larry vs Andy — PGA Championship</title>
+    <title>Larry vs Andy — U.S. Open</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
-            <!-- PGA Championship Trophy SVG -->
-            <div class="pga-trophy">
-                <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <rect x="25" y="80" width="30" height="8" rx="2" fill="#C8A84B"/>
-                    <rect x="20" y="88" width="40" height="6" rx="2" fill="#C8A84B"/>
-                    <rect x="37" y="60" width="6" height="20" fill="#C8A84B"/>
-                    <ellipse cx="40" cy="35" rx="22" ry="28" fill="none" stroke="#C8A84B" stroke-width="4"/>
-                    <path d="M18 25 Q5 30 8 45 Q10 55 20 52" fill="none" stroke="#C8A84B" stroke-width="3.5" stroke-linecap="round"/>
-                    <path d="M62 25 Q75 30 72 45 Q70 55 60 52" fill="none" stroke="#C8A84B" stroke-width="3.5" stroke-linecap="round"/>
-                    <ellipse cx="40" cy="12" rx="10" ry="6" fill="#C8A84B" opacity="0.7"/>
-                </svg>
-            </div>
+            <div class="uso-trophy">🏆</div>
             <h1>⛳ Larry vs Andy</h1>
             <p class="tournament-name">{{ tournament_name }}</p>
-            <p class="venue-info">Aronimink Golf Club &nbsp;·&nbsp; Newtown Square, PA &nbsp;·&nbsp; May 14–17, 2026</p>
+            <p class="venue-info">Shinnecock Hills Golf Club &nbsp;·&nbsp; Southampton, N.Y. &nbsp;·&nbsp; June 18–21, 2026</p>
             <p class="stakes">Stakes: {{ stakes }}</p>
         </header>
         <nav>
