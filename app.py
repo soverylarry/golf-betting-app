@@ -17,27 +17,27 @@ SIDE_BETS_FILE = 'side_bets.json'
 PLAYERS_FILE = 'players.json'
 PLAYERS_PER_TEAM = 14
 COUNT_BEST = 6
-CURRENT_TOURNAMENT_NAME = "108th PGA Championship"
+CURRENT_TOURNAMENT_NAME = "126th U.S. Open Championship"
 
-# --- PGA CHAMPIONSHIP 2026 HARDCODED PICKS ---
-# Draft completed May 13, 2026. Hardcoded as interim fix for picks.json persistence bug.
+# --- U.S. OPEN 2026 HARDCODED PICKS ---
+# Draft completed June 19, 2026. Hardcoded as interim fix for picks.json persistence bug.
 # 14 active roster players + 1 backup (alternate only if a top-6 player withdraws
 # after the 36-hole cut).
 HARDCODED_LARRY_PICKS = [
-    "Scottie Scheffler", "Cameron Young", "Xander Schauffele", "Bryson DeChambeau",
-    "Matt Fitzpatrick", "Jordan Spieth", "Russell Henley", "Patrick Cantlay",
-    "Tyrrell Hatton", "Chris Gotterup", "Si Woo Kim", "Nicolai Hojgaard",
-    "Sam Burns", "Rickie Fowler"
+    "Scottie Scheffler", "Xander Schauffele", "Jon Rahm", "Bryson DeChambeau",
+    "Cameron Young", "Ludvig Aberg", "Matt Fitzpatrick", "Collin Morikawa",
+    "Patrick Reed", "Russell Henley", "Wyndham Clark", "Sam Burns",
+    "Chris Gotterup", "Justin Thomas"
 ]
-HARDCODED_LARRY_BACKUP = "Joaquin Niemann"
+HARDCODED_LARRY_BACKUP = "Min Woo Lee"
 
 HARDCODED_ANDY_PICKS = [
-    "Rory McIlroy", "Justin Rose", "Tommy Fleetwood", "Ludvig Aberg",
-    "Akshay Bhatia", "J.J. Spaun", "Viktor Hovland", "Robert MacIntyre",
-    "Justin Thomas", "Keegan Bradley", "Adam Scott", "Hideki Matsuyama",
-    "Sungjae Im", "Brooks Koepka"
+    "Rory McIlroy", "Tommy Fleetwood", "Justin Rose", "Brooks Koepka",
+    "J.J. Spaun", "Hideki Matsuyama", "Patrick Cantlay", "Si Woo Kim",
+    "Daniel Berger", "Brian Harman", "Keegan Bradley", "Akshay Bhatia",
+    "Sahith Theegala", "Shane Lowry"
 ]
-HARDCODED_ANDY_BACKUP = "Jon Rahm"
+HARDCODED_ANDY_BACKUP = "Robert MacIntyre"
 
 # --- DATA MANAGEMENT ---
 def load_json(filename):
@@ -112,10 +112,10 @@ def _fetch_espn():
 
     events = data.get("events", [])
     target = None
-    # Look for PGA Championship specifically
+    # Look for U.S. Open specifically
     for event in events:
         name = event.get("name", "").lower()
-        if "pga championship" in name:
+        if "u.s. open" in name or "us open" in name:
             target = event
             break
     # Fall back to first event if PGA Championship not found by name
