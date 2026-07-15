@@ -1,17 +1,36 @@
-/* Golf Betting App - U.S. Open Championship Theme */
+
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Style · CSS
+/* Golf Betting App - The Open Championship Theme */
 :root {
-    /* USGA / U.S. Open Official Colors */
-    --uso-navy: #002D6D;
-    --uso-dark-navy: #001A45;
-    --uso-red: #BF0D3E;
-    --uso-dark-red: #96092f;
-    --uso-white: #ffffff;
-    --uso-silver: #8B9BB0;
+    /* The Open Championship Official Colors */
+    --open-black: #111111;
+    --open-dark: #0a0a0a;
+    --open-gold: #FFBA00;
+    --open-dark-gold: #cc9500;
+    --open-white: #ffffff;
+    --open-grey: #2a2a2a;
     --text-black: #000000;
-    --text-muted: #666666;
+    --text-muted: #888888;
     --score-red: #d32f2f;    /* Under par — red numbers */
-    --score-over: #002D6D;   /* Over par — navy */
-    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow: rgba(0, 0, 0, 0.5);
 }
 * {
     margin: 0;
@@ -20,8 +39,8 @@
 }
 body {
     font-family: 'Arial Black', 'Arial Bold', 'Helvetica', sans-serif;
-    background: #eef1f7;
-    color: var(--text-black);
+    background: #1a1a1a;
+    color: var(--open-white);
     line-height: 1.4;
     min-height: 100vh;
     padding: 1rem;
@@ -30,34 +49,33 @@ body {
     max-width: 1600px;
     margin: 0 auto;
 }
-/* Trophy emoji */
-.uso-trophy {
+/* Claret Jug emoji */
+.open-claret {
     font-size: 3rem;
     text-align: center;
     margin-bottom: 0.5rem;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
 }
-/* Header - U.S. Open Style */
+/* Header - The Open Style */
 header {
     text-align: center;
     margin-bottom: 2rem;
     padding: 2.5rem 2rem 2rem 2rem;
-    background: var(--uso-navy);
-    border: 6px solid var(--uso-red);
+    background: var(--open-black);
+    border: 6px solid var(--open-gold);
     border-radius: 12px;
     box-shadow: 0 10px 30px var(--shadow);
 }
 header h1 {
     font-size: clamp(2rem, 6vw, 3.5rem);
     margin-bottom: 0.5rem;
-    color: var(--uso-white);
+    color: var(--open-white);
     font-weight: 900;
     letter-spacing: 3px;
     text-transform: uppercase;
 }
 .tournament-name {
     font-size: clamp(1.2rem, 3vw, 2rem);
-    color: var(--uso-red);
+    color: var(--open-gold);
     font-weight: 900;
     margin-bottom: 0.4rem;
     letter-spacing: 2px;
@@ -65,21 +83,41 @@ header h1 {
 }
 .venue-info {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 600;
     letter-spacing: 1px;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-transform: uppercase;
+}
+/* Stakes grid for complex prize structure */
+.stakes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+.stakes-item {
+    background: var(--open-grey);
+    border: 2px solid var(--open-dark-gold);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stakes-amount {
+    color: var(--open-gold);
+    font-weight: 900;
+    margin-left: 0.4rem;
 }
 .stakes {
     font-size: 1.1rem;
-    color: var(--uso-white);
+    color: var(--open-white);
     margin-top: 0.75rem;
     font-weight: 700;
-}
-.stakes strong {
-    color: var(--uso-red);
-    font-weight: 900;
 }
 /* Navigation */
 nav {
@@ -87,9 +125,9 @@ nav {
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-bottom: 2rem;
-    background: var(--uso-dark-navy);
+    background: var(--open-black);
     padding: 1rem;
-    border: 4px solid var(--uso-red);
+    border: 4px solid var(--open-gold);
     border-radius: 8px;
     box-shadow: 0 8px 20px var(--shadow);
 }
@@ -98,9 +136,9 @@ nav a {
     min-width: 120px;
     padding: 0.9rem 1.25rem;
     background: transparent;
-    color: var(--uso-white);
+    color: var(--open-white);
     text-decoration: none;
-    border: 3px solid rgba(191, 13, 62, 0.4);
+    border: 3px solid rgba(255, 186, 0, 0.35);
     border-radius: 6px;
     text-align: center;
     transition: all 0.3s ease;
@@ -110,16 +148,16 @@ nav a {
     font-size: 0.95rem;
 }
 nav a:hover {
-    background: var(--uso-red);
-    color: var(--uso-white);
-    border-color: var(--uso-red);
+    background: var(--open-gold);
+    color: var(--open-black);
+    border-color: var(--open-gold);
     transform: translateY(-2px);
     box-shadow: 0 4px 10px var(--shadow);
 }
 nav a.active {
-    background: var(--uso-red);
-    color: var(--uso-white);
-    border-color: var(--uso-red);
+    background: var(--open-gold);
+    color: var(--open-black);
+    border-color: var(--open-gold);
 }
 /* Scoreboard */
 .scoreboard {
@@ -135,8 +173,8 @@ nav a.active {
 }
 /* Team Cards */
 .team-card {
-    background: var(--uso-white);
-    border: 6px solid var(--uso-navy);
+    background: var(--open-white);
+    border: 6px solid var(--open-black);
     border-radius: 12px;
     box-shadow: 0 10px 30px var(--shadow);
     overflow: hidden;
@@ -145,12 +183,12 @@ nav a.active {
     font-size: 2rem;
     padding: 1.25rem;
     text-align: center;
-    background: var(--uso-navy);
-    color: var(--uso-white);
+    background: var(--open-black);
+    color: var(--open-white);
     font-weight: 900;
     letter-spacing: 3px;
     text-transform: uppercase;
-    border-bottom: 5px solid var(--uso-red);
+    border-bottom: 5px solid var(--open-gold);
 }
 /* Score Display */
 .total-score {
@@ -159,42 +197,42 @@ nav a.active {
     text-align: center;
     padding: 2rem 1rem;
     margin: 0;
-    background: var(--uso-white);
+    background: var(--open-white);
     font-family: 'Arial Black', sans-serif;
+    color: var(--text-black);
 }
 .total-score.winning {
     color: var(--score-red);
 }
 .total-score.losing {
-    color: var(--uso-navy);
+    color: var(--open-black);
 }
 .total-score.tied {
     color: var(--text-black);
 }
 .score-label {
     text-align: center;
-    color: var(--uso-white);
+    color: var(--open-black);
     font-size: 0.9rem;
     font-weight: 900;
     padding: 0.65rem;
-    background: var(--uso-navy);
+    background: var(--open-gold);
     text-transform: uppercase;
     letter-spacing: 2px;
-    border-top: 3px solid var(--uso-red);
 }
 /* Players List */
 .players-list {
     padding: 1.5rem;
-    background: var(--uso-white);
+    background: var(--open-white);
 }
 .players-list h3 {
     font-size: 1rem;
     margin-bottom: 1rem;
-    color: var(--uso-navy);
+    color: var(--open-black);
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: 900;
-    border-bottom: 4px solid var(--uso-red);
+    border-bottom: 4px solid var(--open-gold);
     padding-bottom: 0.75rem;
 }
 .player-row {
@@ -203,11 +241,11 @@ nav a.active {
     gap: 1rem;
     padding: 0.85rem 1rem;
     margin-bottom: 0.4rem;
-    background: var(--uso-white);
-    border: 2px solid #dde3ef;
+    background: var(--open-white);
+    border: 2px solid #e0e0e0;
     border-radius: 6px;
     align-items: center;
-    border-left: 6px solid #dde3ef;
+    border-left: 6px solid #e0e0e0;
 }
 .player-row.counting {
     border-left-color: var(--score-red);
@@ -217,26 +255,26 @@ nav a.active {
     border-left-color: var(--score-red);
 }
 .player-row.bench {
-    opacity: 0.55;
-    border-left-color: #bbc3d4;
+    opacity: 0.5;
+    border-left-color: #ccc;
 }
-/* 15th Player / Backup */
+/* Alternate / Backup player */
 .player-row.backup-player {
-    border-left-color: var(--uso-red);
+    border-left-color: var(--open-gold);
     border-left-width: 8px;
     border-style: dashed;
     opacity: 0.85;
-    background: rgba(191, 13, 62, 0.04);
+    background: rgba(255, 186, 0, 0.06);
     margin-top: 0.75rem;
 }
 .player-row.backup-player .player-score {
-    color: var(--uso-dark-red);
+    color: var(--open-dark-gold);
 }
 .backup-badge {
     display: inline-block;
     font-size: 0.62rem;
-    background: var(--uso-red);
-    color: var(--uso-white);
+    background: var(--open-gold);
+    color: var(--open-black);
     padding: 2px 6px;
     border-radius: 3px;
     margin-left: 7px;
@@ -267,7 +305,7 @@ nav a.active {
     color: var(--score-red);
 }
 .player-row.bench .player-score {
-    color: var(--uso-navy);
+    color: #555;
 }
 .player-status {
     min-width: 55px;
@@ -279,7 +317,7 @@ nav a.active {
 /* Buttons */
 .btn-primary, .btn-secondary {
     padding: 0.9rem 2.25rem;
-    border: 3px solid var(--uso-navy);
+    border: 3px solid var(--open-black);
     border-radius: 6px;
     font-size: 1rem;
     font-weight: 900;
@@ -291,28 +329,27 @@ nav a.active {
     letter-spacing: 1px;
 }
 .btn-primary {
-    background: var(--uso-white);
-    color: var(--uso-navy);
+    background: var(--open-white);
+    color: var(--open-black);
 }
 .btn-primary:hover:not(:disabled) {
-    background: var(--uso-navy);
-    color: var(--uso-white);
+    background: var(--open-black);
+    color: var(--open-white);
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px var(--shadow);
 }
 .btn-primary:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
 .btn-secondary {
-    background: var(--uso-navy);
-    color: var(--uso-white);
-    border-color: var(--uso-red);
+    background: var(--open-black);
+    color: var(--open-white);
+    border-color: var(--open-gold);
 }
 .btn-secondary:hover {
-    background: var(--uso-red);
-    color: var(--uso-white);
-    border-color: var(--uso-red);
+    background: var(--open-gold);
+    color: var(--open-black);
+    border-color: var(--open-gold);
     transform: translateY(-2px);
 }
 /* Controls */
@@ -322,26 +359,13 @@ nav a.active {
     gap: 1.25rem;
     align-items: center;
     padding: 1.5rem;
-    background: var(--uso-white);
-    border: 5px solid var(--uso-navy);
+    background: var(--open-white);
+    border: 5px solid var(--open-black);
     border-radius: 12px;
     box-shadow: 0 8px 20px var(--shadow);
 }
 @media (min-width: 640px) {
-    .controls {
-        flex-direction: row;
-        justify-content: center;
-    }
-}
-/* Side Bets Summary */
-.side-bets-summary {
-    background: var(--uso-white);
-    border: 6px solid var(--uso-navy);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 8px 20px var(--shadow);
-    margin-bottom: 2rem;
+    .controls { flex-direction: row; justify-content: center; }
 }
 /* History Page */
 .win-stats {
@@ -352,12 +376,12 @@ nav a.active {
     margin-bottom: 2rem;
 }
 .stat-card {
-    background: var(--uso-white);
+    background: var(--open-white);
     padding: 2.5rem;
     border-radius: 12px;
     text-align: center;
     min-width: 200px;
-    border: 6px solid var(--uso-navy);
+    border: 6px solid var(--open-black);
     box-shadow: 0 8px 20px var(--shadow);
 }
 .stat-card .stat-number {
@@ -378,29 +402,26 @@ nav a.active {
     gap: 1.25rem;
 }
 .history-item {
-    background: var(--uso-white);
+    background: var(--open-white);
     padding: 1.75rem;
     border-radius: 12px;
-    border: 5px solid var(--uso-navy);
+    border: 5px solid var(--open-black);
     border-left-width: 12px;
     box-shadow: 0 6px 15px var(--shadow);
 }
-.history-item h3 {
-    color: var(--uso-navy);
-    font-weight: 900;
-}
+.history-item h3 { color: var(--open-black); font-weight: 900; }
 /* Admin Page */
 .admin-section {
-    background: var(--uso-white);
+    background: var(--open-white);
     padding: 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
-    border: 5px solid var(--uso-navy);
+    border: 5px solid var(--open-black);
     box-shadow: 0 8px 20px var(--shadow);
 }
 .admin-section h2 {
     margin-bottom: 1.25rem;
-    color: var(--uso-navy);
+    color: var(--open-black);
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -417,51 +438,35 @@ nav a.active {
 .form-group select {
     width: 100%;
     padding: 1rem;
-    background: var(--uso-white);
-    border: 3px solid var(--uso-navy);
+    background: var(--open-white);
+    border: 3px solid var(--open-black);
     border-radius: 6px;
     color: var(--text-black);
     font-size: 1.1rem;
     font-weight: 700;
 }
 /* Draft Page */
-.draft-container {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-@media (max-width: 968px) {
-    .draft-container {
-        grid-template-columns: 1fr;
-    }
-}
 .draft-board {
     background: #ffffff;
     border-radius: 8px;
     padding: 1.5rem;
     min-height: 400px;
-    border: 3px solid var(--uso-navy);
-}
-.draft-board h2 {
-    color: var(--uso-navy);
-    font-weight: 700;
-    margin-bottom: 1rem;
+    border: 3px solid var(--open-black);
 }
 .turn-indicator {
-    background: var(--uso-navy);
-    color: #ffffff;
+    background: var(--open-black);
+    color: var(--open-white);
     padding: 1rem;
     border-radius: 8px;
     text-align: center;
     font-weight: 900;
     font-size: 1.3rem;
     margin-bottom: 1.5rem;
-    border: 2px solid var(--uso-red);
+    border: 2px solid var(--open-gold);
 }
 .player-card {
     background: #ffffff;
-    border: 2px solid var(--uso-navy);
+    border: 2px solid var(--open-black);
     padding: 1rem;
     margin-bottom: 0.75rem;
     border-radius: 6px;
@@ -473,22 +478,19 @@ nav a.active {
 }
 .player-card:hover {
     transform: translateX(5px);
-    background: rgba(0, 45, 109, 0.07);
+    background: rgba(255, 186, 0, 0.1);
     border-left-width: 8px;
 }
-.player-card.selected {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
+.player-card.selected { opacity: 0.3; cursor: not-allowed; }
 .drafted-list {
-    background: rgba(0, 45, 109, 0.04);
+    background: rgba(255, 186, 0, 0.05);
     padding: 1rem;
     border-radius: 6px;
     min-height: 200px;
 }
 .drafted-list li {
     background: #ffffff;
-    border: 2px solid var(--uso-navy);
+    border: 2px solid var(--open-black);
     padding: 0.75rem;
     margin-bottom: 0.5rem;
     border-radius: 4px;
@@ -498,7 +500,7 @@ nav a.active {
 }
 /* Responsive */
 @media (max-width: 640px) {
-    header {
-        padding: 2rem 1rem 1.5rem 1rem;
-    }
+    header { padding: 2rem 1rem 1.5rem 1rem; }
+    .stakes-grid { flex-direction: column; align-items: center; }
 }
+ 
