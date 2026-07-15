@@ -1,23 +1,5 @@
 
-/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-App · PY
+/App · PY
 import json
 import os
 import unicodedata
