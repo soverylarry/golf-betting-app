@@ -1,485 +1,137 @@
-/* Golf Betting App - The Open Championship Theme */
-:root {
-    /* The Open Championship Official Colors */
-    --open-black: #111111;
-    --open-dark: #0a0a0a;
-    --open-gold: #FFBA00;
-    --open-dark-gold: #cc9500;
-    --open-white: #ffffff;
-    --open-grey: #2a2a2a;
-    --text-black: #000000;
-    --text-muted: #888888;
-    --score-red: #d32f2f;    /* Under par — red numbers */
-    --shadow: rgba(0, 0, 0, 0.5);
-}
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-body {
-    font-family: 'Arial Black', 'Arial Bold', 'Helvetica', sans-serif;
-    background: #1a1a1a;
-    color: var(--open-white);
-    line-height: 1.4;
-    min-height: 100vh;
-    padding: 1rem;
-}
-.container {
-    max-width: 1600px;
-    margin: 0 auto;
-}
-/* Claret Jug emoji */
-.open-claret {
-    font-size: 3rem;
-    text-align: center;
-    margin-bottom: 0.5rem;
-}
-/* Header - The Open Style */
-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 2.5rem 2rem 2rem 2rem;
-    background: var(--open-black);
-    border: 6px solid var(--open-gold);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px var(--shadow);
-}
-header h1 {
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    margin-bottom: 0.5rem;
-    color: var(--open-white);
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-}
-.tournament-name {
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    color: var(--open-gold);
-    font-weight: 900;
-    margin-bottom: 0.4rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-.venue-info {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 600;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-}
-/* Stakes grid for complex prize structure */
-.stakes-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-}
-.stakes-item {
-    background: var(--open-grey);
-    border: 2px solid var(--open-dark-gold);
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.85);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.stakes-amount {
-    color: var(--open-gold);
-    font-weight: 900;
-    margin-left: 0.4rem;
-}
-.stakes {
-    font-size: 1.1rem;
-    color: var(--open-white);
-    margin-top: 0.75rem;
-    font-weight: 700;
-}
-/* Navigation */
-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    background: var(--open-black);
-    padding: 1rem;
-    border: 4px solid var(--open-gold);
-    border-radius: 8px;
-    box-shadow: 0 8px 20px var(--shadow);
-}
-nav a {
-    flex: 1;
-    min-width: 120px;
-    padding: 0.9rem 1.25rem;
-    background: transparent;
-    color: var(--open-white);
-    text-decoration: none;
-    border: 3px solid rgba(255, 186, 0, 0.35);
-    border-radius: 6px;
-    text-align: center;
-    transition: all 0.3s ease;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.95rem;
-}
-nav a:hover {
-    background: var(--open-gold);
-    color: var(--open-black);
-    border-color: var(--open-gold);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px var(--shadow);
-}
-nav a.active {
-    background: var(--open-gold);
-    color: var(--open-black);
-    border-color: var(--open-gold);
-}
-/* Scoreboard */
-.scoreboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-@media (max-width: 900px) {
-    .scoreboard {
-        grid-template-columns: 1fr;
-    }
-}
-/* Team Cards */
-.team-card {
-    background: var(--open-white);
-    border: 6px solid var(--open-black);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px var(--shadow);
-    overflow: hidden;
-}
-.team-card h2 {
-    font-size: 2rem;
-    padding: 1.25rem;
-    text-align: center;
-    background: var(--open-black);
-    color: var(--open-white);
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    border-bottom: 5px solid var(--open-gold);
-}
-/* Score Display */
-.total-score {
-    font-size: clamp(5rem, 12vw, 7rem);
-    font-weight: 900;
-    text-align: center;
-    padding: 2rem 1rem;
-    margin: 0;
-    background: var(--open-white);
-    font-family: 'Arial Black', sans-serif;
-    color: var(--text-black);
-}
-.total-score.winning {
-    color: var(--score-red);
-}
-.total-score.losing {
-    color: var(--open-black);
-}
-.total-score.tied {
-    color: var(--text-black);
-}
-.score-label {
-    text-align: center;
-    color: var(--open-black);
-    font-size: 0.9rem;
-    font-weight: 900;
-    padding: 0.65rem;
-    background: var(--open-gold);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-/* Players List */
-.players-list {
-    padding: 1.5rem;
-    background: var(--open-white);
-}
-.players-list h3 {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    color: var(--open-black);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 900;
-    border-bottom: 4px solid var(--open-gold);
-    padding-bottom: 0.75rem;
-}
-.player-row {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 1rem;
-    padding: 0.85rem 1rem;
-    margin-bottom: 0.4rem;
-    background: var(--open-white);
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    align-items: center;
-    border-left: 6px solid #e0e0e0;
-}
-.player-row.counting {
-    border-left-color: var(--score-red);
-    border-left-width: 8px;
-    background: rgba(211, 47, 47, 0.04);
-    border-color: rgba(211, 47, 47, 0.2);
-    border-left-color: var(--score-red);
-}
-.player-row.bench {
-    opacity: 0.5;
-    border-left-color: #ccc;
-}
-/* Alternate / Backup player */
-.player-row.backup-player {
-    border-left-color: var(--open-gold);
-    border-left-width: 8px;
-    border-style: dashed;
-    opacity: 0.85;
-    background: rgba(255, 186, 0, 0.06);
-    margin-top: 0.75rem;
-}
-.player-row.backup-player .player-score {
-    color: var(--open-dark-gold);
-}
-.backup-badge {
-    display: inline-block;
-    font-size: 0.62rem;
-    background: var(--open-gold);
-    color: var(--open-black);
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 7px;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    vertical-align: middle;
-    line-height: 1.4;
-}
-.player-name {
-    font-weight: 900;
-    color: var(--text-black);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.player-score {
-    font-weight: 900;
-    font-size: 1.6rem;
-    min-width: 55px;
-    text-align: right;
-    font-family: 'Arial Black', sans-serif;
-    color: var(--text-black);
-}
-.player-row.counting .player-score {
-    color: var(--score-red);
-}
-.player-row.bench .player-score {
-    color: #555;
-}
-.player-status {
-    min-width: 55px;
-    text-align: right;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-/* Buttons */
-.btn-primary, .btn-secondary {
-    padding: 0.9rem 2.25rem;
-    border: 3px solid var(--open-black);
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 900;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.btn-primary {
-    background: var(--open-white);
-    color: var(--open-black);
-}
-.btn-primary:hover:not(:disabled) {
-    background: var(--open-black);
-    color: var(--open-white);
-    transform: translateY(-2px);
-}
-.btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-.btn-secondary {
-    background: var(--open-black);
-    color: var(--open-white);
-    border-color: var(--open-gold);
-}
-.btn-secondary:hover {
-    background: var(--open-gold);
-    color: var(--open-black);
-    border-color: var(--open-gold);
-    transform: translateY(-2px);
-}
-/* Controls */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    align-items: center;
-    padding: 1.5rem;
-    background: var(--open-white);
-    border: 5px solid var(--open-black);
-    border-radius: 12px;
-    box-shadow: 0 8px 20px var(--shadow);
-}
-@media (min-width: 640px) {
-    .controls { flex-direction: row; justify-content: center; }
-}
-/* History Page */
-.win-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
-    margin-bottom: 2rem;
-}
-.stat-card {
-    background: var(--open-white);
-    padding: 2.5rem;
-    border-radius: 12px;
-    text-align: center;
-    min-width: 200px;
-    border: 6px solid var(--open-black);
-    box-shadow: 0 8px 20px var(--shadow);
-}
-.stat-card .stat-number {
-    font-size: 4.5rem;
-    font-weight: 900;
-    color: var(--score-red);
-}
-.stat-card .stat-label {
-    color: var(--text-black);
-    margin-top: 0.75rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-.history-item {
-    background: var(--open-white);
-    padding: 1.75rem;
-    border-radius: 12px;
-    border: 5px solid var(--open-black);
-    border-left-width: 12px;
-    box-shadow: 0 6px 15px var(--shadow);
-}
-.history-item h3 { color: var(--open-black); font-weight: 900; }
-/* Admin Page */
-.admin-section {
-    background: var(--open-white);
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    border: 5px solid var(--open-black);
-    box-shadow: 0 8px 20px var(--shadow);
-}
-.admin-section h2 {
-    margin-bottom: 1.25rem;
-    color: var(--open-black);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-.form-group label {
-    display: block;
-    margin-bottom: 0.75rem;
-    font-weight: 900;
-    color: var(--text-black);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.form-group input[type="text"],
-.form-group select {
-    width: 100%;
-    padding: 1rem;
-    background: var(--open-white);
-    border: 3px solid var(--open-black);
-    border-radius: 6px;
-    color: var(--text-black);
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-/* Draft Page */
-.draft-board {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    min-height: 400px;
-    border: 3px solid var(--open-black);
-}
-.turn-indicator {
-    background: var(--open-black);
-    color: var(--open-white);
-    padding: 1rem;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 900;
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
-    border: 2px solid var(--open-gold);
-}
-.player-card {
-    background: #ffffff;
-    border: 2px solid var(--open-black);
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border-left-width: 5px;
-    font-weight: 600;
-    color: #000000;
-}
-.player-card:hover {
-    transform: translateX(5px);
-    background: rgba(255, 186, 0, 0.1);
-    border-left-width: 8px;
-}
-.player-card.selected { opacity: 0.3; cursor: not-allowed; }
-.drafted-list {
-    background: rgba(255, 186, 0, 0.05);
-    padding: 1rem;
-    border-radius: 6px;
-    min-height: 200px;
-}
-.drafted-list li {
-    background: #ffffff;
-    border: 2px solid var(--open-black);
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    border-radius: 4px;
-    list-style: none;
-    color: #000000;
-    font-weight: 600;
-}
-/* Responsive */
-@media (max-width: 640px) {
-    header { padding: 2rem 1rem 1.5rem 1rem; }
-    .stakes-grid { flex-direction: column; align-items: center; }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Larry vs Andy — The Open Championship</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="open-claret">🏺</div>
+            <h1>⛳ Larry vs Andy</h1>
+            <p class="tournament-name">{{ tournament_name }}</p>
+            <p class="venue-info">Royal Birkdale &nbsp;·&nbsp; Southport, England &nbsp;·&nbsp; July 16–19, 2026</p>
+            <div class="stakes-grid">
+                <div class="stakes-item">🏆 Tournament Win <span class="stakes-amount">$20</span></div>
+                <div class="stakes-item">🎯 Champion on Roster <span class="stakes-amount">+$5</span></div>
+                <div class="stakes-item">📊 Season Stroke Leader <span class="stakes-amount">+$20</span></div>
+            </div>
+        </header>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('admin') }}">Admin</a>
+        </nav>
+
+        <!-- Scoreboard -->
+        <div class="scoreboard">
+
+            <!-- Larry's Team -->
+            <div class="team-card">
+                <h2>🎯 Larry</h2>
+                <div class="total-score {% if larry.total < andy.total %}winning{% elif larry.total > andy.total %}losing{% else %}tied{% endif %}">
+                    {% if larry.total == 0 %}E{% elif larry.total < 0 %}{{ larry.total }}{% else %}+{{ larry.total }}{% endif %}
+                </div>
+                <div class="score-label">TOP 6 TOTAL &nbsp;·&nbsp; BEST 6 OF 14 COUNT</div>
+
+                <div class="players-list">
+                    <h3>Roster — Top 6 Counting</h3>
+                    {% for player in larry.all_players %}
+                    <div class="player-row {% if player.counting %}counting{% else %}bench{% endif %}">
+                        <span class="player-name">{{ player.name }}</span>
+                        <span class="player-score">
+                            {% if player.score == 0 %}E{% elif player.score < 0 %}{{ player.score }}{% else %}+{{ player.score }}{% endif %}
+                        </span>
+                        <span class="player-status">{{ player.thru }}</span>
+                    </div>
+                    {% endfor %}
+
+                    {% if larry.backup %}
+                    <div class="player-row backup-player">
+                        <span class="player-name">
+                            {{ larry.backup.name }}<span class="backup-badge">ALT ↩</span>
+                        </span>
+                        <span class="player-score">
+                            {% if larry.backup.score == 0 %}E{% elif larry.backup.score < 0 %}{{ larry.backup.score }}{% else %}+{{ larry.backup.score }}{% endif %}
+                        </span>
+                        <span class="player-status">{{ larry.backup.thru }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Andy's Team -->
+            <div class="team-card">
+                <h2>🎯 Andy</h2>
+                <div class="total-score {% if andy.total < larry.total %}winning{% elif andy.total > larry.total %}losing{% else %}tied{% endif %}">
+                    {% if andy.total == 0 %}E{% elif andy.total < 0 %}{{ andy.total }}{% else %}+{{ andy.total }}{% endif %}
+                </div>
+                <div class="score-label">TOP 6 TOTAL &nbsp;·&nbsp; BEST 6 OF 14 COUNT</div>
+
+                <div class="players-list">
+                    <h3>Roster — Top 6 Counting</h3>
+                    {% for player in andy.all_players %}
+                    <div class="player-row {% if player.counting %}counting{% else %}bench{% endif %}">
+                        <span class="player-name">{{ player.name }}</span>
+                        <span class="player-score">
+                            {% if player.score == 0 %}E{% elif player.score < 0 %}{{ player.score }}{% else %}+{{ player.score }}{% endif %}
+                        </span>
+                        <span class="player-status">{{ player.thru }}</span>
+                    </div>
+                    {% endfor %}
+
+                    {% if andy.backup %}
+                    <div class="player-row backup-player">
+                        <span class="player-name">
+                            {{ andy.backup.name }}<span class="backup-badge">ALT ↩</span>
+                        </span>
+                        <span class="player-score">
+                            {% if andy.backup.score == 0 %}E{% elif andy.backup.score < 0 %}{{ andy.backup.score }}{% else %}+{{ andy.backup.score }}{% endif %}
+                        </span>
+                        <span class="player-status">{{ andy.backup.thru }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div><!-- end .scoreboard -->
+
+        <!-- Last Updated -->
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            Last Updated: <span id="lastUpdated">{{ last_updated }}</span>
+            <br>
+            <button id="refreshBtn" class="btn-secondary" style="margin-top: 0.5rem;">
+                🔄 Refresh Scores
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                fetch('/api/refresh')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('lastUpdated').textContent = data.last_updated;
+                        window.location.reload();
+                    })
+                    .catch(error => console.error('Auto-refresh error:', error));
+            }, 60000);
+        }
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            window.location.reload();
+        });
+        startAutoRefresh();
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(refreshInterval);
+            } else {
+                startAutoRefresh();
+            }
+        });
+    </script>
+</body>
+</html>
