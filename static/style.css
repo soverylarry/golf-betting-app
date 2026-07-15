@@ -1,5 +1,3 @@
-
-/Style · CSS
 /* Golf Betting App - The Open Championship Theme */
 :root {
     /* The Open Championship Official Colors */
@@ -485,4 +483,3 @@ nav a.active {
     header { padding: 2rem 1rem 1.5rem 1rem; }
     .stakes-grid { flex-direction: column; align-items: center; }
 }
- 
